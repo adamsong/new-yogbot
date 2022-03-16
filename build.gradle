@@ -1,0 +1,39 @@
+plugins {
+    id 'java'
+}
+
+group 'net.yogstation'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'net.yogstation.yogbot.Yogbot'
+    }
+}
+
+task fatJar(type: Jar) {
+    manifest {
+        attributes 'Main-Class': 'net.yogstation.yogbot.Yogbot'
+    }
+    duplicatesStrategy = 'include'
+    archiveAppendix = 'FAT'
+    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
+configure(fatJar) {
+    group = 'build'
+    description = 'Builds a jar with all dependencies'
+}
+
+dependencies {
+    testImplementation group: 'junit', name: 'junit', version: '4.12'
+    implementation 'com.discord4j:discord4j-core:3.2.2'
+    implementation 'org.slf4j:slf4j-api:1.7.36'
+    implementation 'org.slf4j:slf4j-simple:1.7.36'
+    implementation 'io.netty:netty-resolver-dns-native-macos:4.1.75.Final:osx-aarch_64'
+}
