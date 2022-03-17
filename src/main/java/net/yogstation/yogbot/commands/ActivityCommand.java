@@ -94,6 +94,8 @@ JOIN %s as ranklist ON adminlist.rank = ranklist.`rank`;
 				if(activityDatum.ckey().length() > adminLen) adminLen = activityDatum.ckey().length();
 				if(activityDatum.rank().length() > rankLen) rankLen = activityDatum.rank().length();
 			}
+			activityResults.close();
+			activityStatement.close();
 			activityData.sort(Activity::compareTo);
 
 			Set<String> loaAdmins = new HashSet<>();
@@ -101,6 +103,9 @@ JOIN %s as ranklist ON adminlist.rank = ranklist.`rank`;
 			ResultSet loaResults = loaStatement.executeQuery("SELECT ckey from " + Yogbot.database.prefix("loa") + " WHERE Now() < expiry_time && revoked IS NULL;");
 
 			while(loaResults.next()) loaAdmins.add(ckey_ize(loaResults.getString("ckey")));
+			loaResults.close();
+			loaStatement.close();
+			conn.close();
 
 			StringBuilder output = new StringBuilder("```diff\n");
 
