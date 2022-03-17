@@ -131,8 +131,8 @@ JOIN %s as ranklist ON adminlist.rank = ranklist.`rank`;
 				line.append(' ');
 				line.append(StringUtils.padStart(String.format("%.1f", activity.activity()), 8));
 				line.append(' ');
-				if(loa) line.append("(loa)");
-				else if(exempt) line.append("(exempt)");
+				if(loa) line.append("(LOA)");
+				else if(exempt) line.append("(Exempt)");
 				line.append('\n');
 
 				if(output.length() + line.length() > 1990) {
