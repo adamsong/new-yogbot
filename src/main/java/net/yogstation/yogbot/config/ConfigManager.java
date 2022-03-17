@@ -15,9 +15,11 @@ public final class ConfigManager {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ConfigManager.class);
 
 	public final DiscordConfig discordConfig;
+	public final DatabaseConfig databaseConfig;
 
 	public ConfigManager() {
 		discordConfig = loadConfig(DiscordConfig.class, "discord.properties");
+		databaseConfig = loadConfig(DatabaseConfig.class, "database.properties");
 	}
 
 	/**

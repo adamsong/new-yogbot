@@ -29,4 +29,9 @@ public abstract class TextCommand implements IEventHandler<MessageCreateEvent> {
 					.content(message).build())
 		);
 	}
+
+	protected Mono<?> send(MessageCreateEvent event, String message) {
+		return event.getMessage().getChannel().flatMap(channel ->
+				channel.createMessage(message));
+	}
 }

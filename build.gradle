@@ -36,4 +36,5 @@ dependencies {
     implementation 'org.slf4j:slf4j-api:1.7.36'
     implementation 'org.slf4j:slf4j-simple:1.7.36'
     implementation 'io.netty:netty-resolver-dns-native-macos:4.1.75.Final:osx-aarch_64'
+    implementation 'mysql:mysql-connector-java:8.0.28'
 }

@@ -15,13 +15,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 
+import java.sql.SQLException;
+
 public class Yogbot {
 	private static final Logger LOGGER = LoggerFactory.getLogger(Yogbot.class);
 
 	public static final ConfigManager config = new ConfigManager();
 	public static final PermissionsManager permissions = new PermissionsManager();
+	public static final DatabaseManager database;
+
+	static {
+		DatabaseManager manager = null;
+		try {
+			manager = new DatabaseManager();
+		} catch (SQLException e) {
+			LOGGER.error("Failed to configure database", e);
+		}
+		database = manager;
+	}
 
 	public static void main(String[] args) {
+		if(database == null) return;
+
 		GatewayDiscordClient client = DiscordClientBuilder.create(config.discordConfig.botToken)
 				.build().login().block();
 		
