@@ -7,4 +7,7 @@ public class DiscordConfig {
 	public String botToken = "No token here";
 
 	public long mainGuildID = 950925654109618286L;
+	public String commandPrefix = "!";
+
+	public boolean useLocalCommands = false;
 }

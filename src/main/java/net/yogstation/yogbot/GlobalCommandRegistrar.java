@@ -79,13 +79,19 @@ public class GlobalCommandRegistrar {
 			commands.add(request); //Add to our array list
 		}
 
-		LOGGER.info("Sending {} application command requests", commands.size());
-
+		if(Yogbot.config.discordConfig.useLocalCommands) {
+			LOGGER.info("Loading guild commands");
+			applicationService.bulkOverwriteGuildApplicationCommand(applicationId, Yogbot.config.discordConfig.mainGuildID, commands)
+					.doOnNext(ignore -> LOGGER.debug("Successfully registered Global Commands"))
+					.doOnError(e -> LOGGER.error("Failed to register global commands", e))
+					.subscribe();
+			return;
+		}
         /* Bulk overwrite commands. This is now idempotent, so it is safe to use this even when only 1 command
         is changed/added/removed
         */
 		applicationService.bulkOverwriteGlobalApplicationCommand(applicationId, commands)
-			.doOnNext(ignore -> LOGGER.info("Successfully registered Global Commands"))
+			.doOnNext(ignore -> LOGGER.debug("Successfully registered Global Commands"))
 			.doOnError(e -> LOGGER.error("Failed to register global commands", e))
 			.subscribe();
 	}

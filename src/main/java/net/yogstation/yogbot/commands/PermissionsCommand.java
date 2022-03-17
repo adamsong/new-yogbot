@@ -1,24 +1,34 @@
 package net.yogstation.yogbot.commands;
 
 import discord4j.core.event.domain.interaction.ApplicationCommandInteractionEvent;
+import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Member;
 import net.yogstation.yogbot.Yogbot;
 import reactor.core.publisher.Mono;
 
-public abstract class PermissionsCommand {
+public abstract class PermissionsCommand extends TextCommand {
 	protected final String requiredPermission;
 
 	public PermissionsCommand(String requiredPermission) {
 		this.requiredPermission = requiredPermission;
 	}
 
+	@Override
+	protected boolean canFire(MessageCreateEvent event) {
+		return hasPermission(event.getMember().orElse(null));
+	}
+
+	@Override
+	protected Mono<?> doError(MessageCreateEvent event) {
+		return reply(event, "You do not have permission to use this command");
+	}
+
 	/**
 	 * Checks if the application command is being run by someone authorized to run the command
-	 * @param event The interaction event
+	 * @param member The member
 	 * @return If the member has permission
 	 */
-	protected boolean hasPermission(ApplicationCommandInteractionEvent event) {
-		Member member = event.getInteraction().getMember().orElse(null);
+	protected boolean hasPermission(Member member) {
 		if(member == null) return false;
 
 		return member.getRoles()
@@ -26,12 +36,4 @@ public abstract class PermissionsCommand {
 				.block() == Boolean.TRUE; // == Boolean.TRUE prevents NPE
 	}
 
-	/**
-	 * Replies with a standard permissions error
-	 * @param event The event to reply to
-	 * @return The reply
-	 */
-	protected Mono<Void> permissionError(ApplicationCommandInteractionEvent event) {
-		return event.reply().withEphemeral(true).withContent("You do not have permission to run this command.");
-	}
 }
