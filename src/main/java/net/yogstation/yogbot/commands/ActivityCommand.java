@@ -120,7 +120,7 @@ JOIN %s as ranklist ON adminlist.rank = ranklist.`rank`;
 				boolean loa = loaAdmins.contains(activity.ckey());
 				boolean exempt = exemptRanks.contains(activity.rank());
 
-				if(activity.activity() > 12) line.append('+');
+				if(activity.activity() >= 12) line.append('+');
 				else if(loa || exempt) line.append(' ');
 				else line.append('-');
 				line.append(' ');
@@ -130,6 +130,9 @@ JOIN %s as ranklist ON adminlist.rank = ranklist.`rank`;
 				line.append(StringUtils.padStart(activity.rank(), rankLen));
 				line.append(' ');
 				line.append(StringUtils.padStart(String.format("%.1f", activity.activity()), 8));
+				line.append(' ');
+				if(loa) line.append("(loa)");
+				else if(exempt) line.append("(exempt)");
 				line.append('\n');
 
 				if(output.length() + line.length() > 1990) {
@@ -177,6 +180,6 @@ record Activity(String ckey, String rank,
 
 	@Override
 	public int compareTo(Activity o) {
-		return Float.compare(activity, o.activity);
+		return Float.compare(o.activity, activity);
 	}
 }
