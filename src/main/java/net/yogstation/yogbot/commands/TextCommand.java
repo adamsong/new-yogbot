@@ -3,9 +3,12 @@ package net.yogstation.yogbot.commands;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.spec.MessageCreateSpec;
 import net.yogstation.yogbot.listeners.IEventHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 
 public abstract class TextCommand implements IEventHandler<MessageCreateEvent> {
+	protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
 	@Override
 	public Mono<?> handle(MessageCreateEvent event) {
 		if(!canFire(event)) return doError(event);

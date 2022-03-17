@@ -14,7 +14,6 @@ import java.sql.Statement;
 import java.util.*;
 
 public class ActivityCommand extends PermissionsCommand {
-	private static final Logger LOGGER = LoggerFactory.getLogger(ActivityCommand.class);
 
 	private static final String activityQuery = String.format("""
 			/*

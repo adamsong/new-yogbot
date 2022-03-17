@@ -4,6 +4,7 @@ import discord4j.core.event.domain.interaction.ApplicationCommandInteractionEven
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Member;
 import net.yogstation.yogbot.Yogbot;
+import net.yogstation.yogbot.permissions.PermissionsNode;
 import reactor.core.publisher.Mono;
 
 public abstract class PermissionsCommand extends TextCommand {
@@ -32,7 +33,11 @@ public abstract class PermissionsCommand extends TextCommand {
 		if(member == null) return false;
 
 		return member.getRoles()
-				.any(role -> Yogbot.permissions.getNodeFor(role.getName()).hasPermission(requiredPermission))
+				.any(role -> {
+					PermissionsNode node = Yogbot.permissions.getNodeFor(role.getName());
+					if(node == null) return false;
+					return node.hasPermission(requiredPermission);
+				})
 				.block() == Boolean.TRUE; // == Boolean.TRUE prevents NPE
 	}
 
