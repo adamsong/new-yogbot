@@ -4,6 +4,7 @@ import discord4j.core.event.domain.message.MessageCreateEvent;
 import net.yogstation.yogbot.Yogbot;
 import net.yogstation.yogbot.commands.ActivityCommand;
 import net.yogstation.yogbot.commands.AddAOCommand;
+import net.yogstation.yogbot.commands.AddMentorCommand;
 import net.yogstation.yogbot.commands.EightBallCommand;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -17,6 +18,7 @@ public class MessageCreateListener {
 	static {
 		commands.add(new ActivityCommand());
 		commands.add(new AddAOCommand());
+		commands.add(new AddMentorCommand());
 		commands.add(new EightBallCommand());
 	}
 	

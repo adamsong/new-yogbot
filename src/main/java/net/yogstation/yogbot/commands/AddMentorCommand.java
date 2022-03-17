@@ -9,10 +9,10 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Locale;
 
-public class AddAOCommand extends AddRankCommand {
+public class AddMentorCommand extends AddRankCommand {
 
-	public AddAOCommand() {
-		super("addao");
+	public AddMentorCommand() {
+		super("addmentor");
 	}
 
 	@Override
@@ -20,7 +20,7 @@ public class AddAOCommand extends AddRankCommand {
 		String[] args = event.getMessage().getContent().split(" ");
 		if(args.length < 2) {
 			assert Yogbot.config.discordConfig != null;
-			return reply(event, String.format("Correct usage: `%saddao <ckey>`", Yogbot.config.discordConfig.commandPrefix));
+			return reply(event, String.format("Correct usage: `%saddmentor <ckey>`", Yogbot.config.discordConfig.commandPrefix));
 		}
 
 		String ckey = args[1].toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9]", "");
@@ -28,13 +28,13 @@ public class AddAOCommand extends AddRankCommand {
 				Connection connection = Yogbot.database.getConnection();
 				PreparedStatement playerStmt = connection.prepareStatement(String.format(
 						"SELECT discord_id FROM `%s` WHERE `ckey` = ? AND discord_id IS NOT NULL;", Yogbot.database.prefix("player")));
-				PreparedStatement adminCheckStmt = connection.prepareStatement(String.format(
-						"SELECT ckey FROM `%s` WHERE `ckey` = ?;", Yogbot.database.prefix("admin")));
-				PreparedStatement adminSetStmt = connection.prepareStatement(String.format(
-						"INSERT INTO `%s` (`ckey`, `rank`) VALUES (?, 'Admin Observer');", Yogbot.database.prefix("admin")))
+				PreparedStatement mentorCheckStmt = connection.prepareStatement(String.format(
+						"SELECT ckey FROM `%s` WHERE `ckey` = ?;", Yogbot.database.prefix("mentor")));
+				PreparedStatement mentorSetStatement = connection.prepareStatement(String.format(
+						"INSERT INTO `%s` (`ckey`, `position`) VALUES (?, 'Mentor');", Yogbot.database.prefix("mentor")))
 				){
 			assert Yogbot.config.discordConfig != null;
-			return giveRank(event, ckey, playerStmt, adminCheckStmt, adminSetStmt, Yogbot.config.discordConfig.aoRole);
+			return giveRank(event, ckey, playerStmt, mentorCheckStmt, mentorSetStatement, Yogbot.config.discordConfig.mentorRole);
 		} catch (SQLException e) {
 			LOGGER.error("Error in AddAOCommand", e);
 			return reply(event, "Unable to access database.");
@@ -43,6 +43,6 @@ public class AddAOCommand extends AddRankCommand {
 
 	@Override
 	public String getName() {
-		return "addao";
+		return "addmentor";
 	}
 }

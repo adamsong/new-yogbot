@@ -1,7 +1,5 @@
 package net.yogstation.yogbot.config;
 
-import discord4j.common.util.Snowflake;
-
 public class DiscordConfig {
 	/**
 	 * The token for the discord bot
@@ -13,5 +11,6 @@ public class DiscordConfig {
 	public boolean useLocalCommands = false;
 
 	public long mainGuildID = 134720091576205312L;
-	public long AORole = 471634210923216906L;
+	public long aoRole = 471634210923216906L;
+	public long mentorRole = 505280515322937355L;
 }
