@@ -16,10 +16,14 @@ public final class ConfigManager {
 
 	public final DiscordConfig discordConfig;
 	public final DatabaseConfig databaseConfig;
+	public final ByondConfig byondConfig;
+	public final DiscordChannelsConfig channelsConfig;
 
 	public ConfigManager() {
 		discordConfig = loadConfig(DiscordConfig.class, "discord.properties");
+		channelsConfig = loadConfig(DiscordChannelsConfig.class, "discord_channels.properties");
 		databaseConfig = loadConfig(DatabaseConfig.class, "database.properties");
+		byondConfig = loadConfig(ByondConfig.class, "byond.properties");
 	}
 
 	/**

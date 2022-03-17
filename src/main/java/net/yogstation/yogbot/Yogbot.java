@@ -23,6 +23,7 @@ public class Yogbot {
 	public static final ConfigManager config = new ConfigManager();
 	public static final PermissionsManager permissions = new PermissionsManager();
 	public static final DatabaseManager database;
+	public static final ByondConnector byondConnector = new ByondConnector();
 
 	static {
 		DatabaseManager manager = null;
