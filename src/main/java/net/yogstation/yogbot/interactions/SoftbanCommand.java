@@ -19,6 +19,10 @@ public class SoftbanCommand implements IInteractionHandler<UserInteractionEvent>
 
 	@Override
 	public Mono<?> handle(UserInteractionEvent event) {
+		if(Yogbot.permissions.hasPermission(event.getInteraction().getMember().orElse(null), "ban"))
+			return event.reply().withEphemeral(true).withContent("You do not have permission to run that command");
+
+
 		return event.presentModal()
 			.withCustomId(String.format("%s-%s", getIdPrefix(), event.getTargetId().asString()))
 			.withTitle("Softban Menu")
