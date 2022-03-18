@@ -10,9 +10,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public abstract class AddRankCommand extends PermissionsCommand {
-	public AddRankCommand(String requiredPermission) {
-		super(requiredPermission);
-	}
 
 	protected Mono<?> giveRank(MessageCreateEvent event, String ckey, PreparedStatement playerStmt, PreparedStatement rankCheckStmt, PreparedStatement rankSetStmt, long role) throws SQLException {
 		Mono<?> result = Mono.empty();

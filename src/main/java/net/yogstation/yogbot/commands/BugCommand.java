@@ -15,4 +15,14 @@ public class BugCommand extends TextCommand {
 	protected Mono<?> doCommand(MessageCreateEvent event) {
 		return send(event, "https://i.imgur.com/iO03Tqm.gifv");
 	}
+
+	@Override
+	protected String getDescription() {
+		return "Get off my lawn";
+	}
+
+	@Override
+	public boolean isHidden() {
+		return true;
+	}
 }

@@ -27,4 +27,14 @@ public class CorgiCommand extends ImageCommand {
 	public String getName() {
 		return "corgi";
 	}
+
+	@Override
+	protected String getDescription() {
+		return "Pictures of Ian's children";
+	}
+
+	@Override
+	public boolean isHidden() {
+		return true;
+	}
 }

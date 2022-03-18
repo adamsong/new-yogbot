@@ -9,7 +9,7 @@ import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.User;
 import net.yogstation.yogbot.bans.BanManager;
 import net.yogstation.yogbot.config.ConfigManager;
-import net.yogstation.yogbot.listeners.MessageCreateListener;
+import net.yogstation.yogbot.listeners.TextCommandListener;
 import net.yogstation.yogbot.listeners.ModalSubmitListener;
 import net.yogstation.yogbot.listeners.UserCommandListener;
 import net.yogstation.yogbot.permissions.PermissionsManager;
@@ -64,7 +64,7 @@ public class Yogbot {
 		}
 
 		// Register the listeners
-		client.on(MessageCreateEvent.class, MessageCreateListener::handle).subscribe();
+		client.on(MessageCreateEvent.class, TextCommandListener::handle).subscribe();
 		client.on(UserInteractionEvent.class, UserCommandListener::handle).subscribe();
 		client.on(ModalSubmitInteractionEvent.class, ModalSubmitListener::handle).subscribe();
 

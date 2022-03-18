@@ -76,4 +76,14 @@ public class CoderCommand extends ImageCommand {
 	public String getName() {
 		return "coder";
 	}
+
+	@Override
+	protected String getDescription() {
+		return "dumb stuff the dev team says";
+	}
+
+	@Override
+	public boolean isHidden() {
+		return true;
+	}
 }

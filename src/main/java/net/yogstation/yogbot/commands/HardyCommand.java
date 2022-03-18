@@ -21,4 +21,14 @@ public class HardyCommand extends ImageCommand {
 	public String getName() {
 		return "hardy";
 	}
+
+	@Override
+	protected String getDescription() {
+		return "Pictures of our overlord";
+	}
+
+	@Override
+	public boolean isHidden() {
+		return true;
+	}
 }

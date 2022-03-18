@@ -32,4 +32,14 @@ public class BannuCommand extends TextCommand {
 	public String getName() {
 		return "bannu";
 	}
+
+	@Override
+	protected String getDescription() {
+		return "\"\"\"\"\"Ban\"\"\"\"\" a user";
+	}
+
+	@Override
+	public boolean isHidden() {
+		return true;
+	}
 }

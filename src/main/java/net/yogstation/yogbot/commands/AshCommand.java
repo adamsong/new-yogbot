@@ -21,4 +21,14 @@ public class AshCommand extends ImageCommand {
 	public String getName() {
 		return "ash";
 	}
+
+	@Override
+	protected String getDescription() {
+		return "Pictures of our friendly neighbourhood onion";
+	}
+
+	@Override
+	public boolean isHidden() {
+		return true;
+	}
 }

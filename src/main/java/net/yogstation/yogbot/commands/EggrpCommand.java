@@ -43,4 +43,14 @@ public class EggrpCommand extends ImageCommand {
 	public String getName() {
 		return "eggrp";
 	}
+
+	@Override
+	protected String getDescription() {
+		return "Pictures of the Egg Overlord";
+	}
+
+	@Override
+	public boolean isHidden() {
+		return true;
+	}
 }

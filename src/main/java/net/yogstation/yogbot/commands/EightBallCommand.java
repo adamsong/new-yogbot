@@ -40,5 +40,13 @@ public class EightBallCommand extends TextCommand {
 		return reply(event, responses[Yogbot.random.nextInt(responses.length)]);
 	}
 
+	@Override
+	protected String getDescription() {
+		return "Gaze into the future.";
+	}
 
+	@Override
+	public boolean isHidden() {
+		return true;
+	}
 }

@@ -23,4 +23,9 @@ public class AdminWhoCommand extends TextCommand {
 	public String getName() {
 		return "adminwho";
 	}
+
+	@Override
+	protected String getDescription() {
+		return "Get current admins online.";
+	}
 }

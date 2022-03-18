@@ -61,15 +61,6 @@ JOIN %s as ranklist ON adminlist.rank = ranklist.`rank`;
 
 	private static final List<String> ignore_ranks = Arrays.asList("Maintainer", "Bot");
 
-	public ActivityCommand() {
-		super("note");
-	}
-
-	@Override
-	public String getName() {
-		return "activity";
-	}
-
 	@Override
 	public Mono<?> doCommand(MessageCreateEvent event) {
 		try {
@@ -157,6 +148,21 @@ JOIN %s as ranklist ON adminlist.rank = ranklist.`rank`;
 			LOGGER.error("Error getting activity", e);
 			return reply(event, "Unable to reach the database, try again later");
 		}
+	}
+
+	@Override
+	protected String getRequiredPermissions() {
+		return "note";
+	}
+
+	@Override
+	protected String getDescription() {
+		return "Activity fun.";
+	}
+
+	@Override
+	public String getName() {
+		return "activity";
 	}
 
 	private String ckey_ize(String key) {

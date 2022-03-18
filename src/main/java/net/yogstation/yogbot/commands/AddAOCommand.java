@@ -11,10 +11,6 @@ import java.util.Locale;
 
 public class AddAOCommand extends AddRankCommand {
 
-	public AddAOCommand() {
-		super("addao");
-	}
-
 	@Override
 	protected Mono<?> doCommand(MessageCreateEvent event) {
 		String[] args = event.getMessage().getContent().split(" ");
@@ -44,5 +40,15 @@ public class AddAOCommand extends AddRankCommand {
 	@Override
 	public String getName() {
 		return "addao";
+	}
+
+	@Override
+	protected String getRequiredPermissions() {
+		return "addao";
+	}
+
+	@Override
+	protected String getDescription() {
+		return "Give a user AO rank.";
 	}
 }

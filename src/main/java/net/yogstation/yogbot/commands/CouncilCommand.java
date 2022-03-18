@@ -24,4 +24,14 @@ public class CouncilCommand extends ImageCommand {
 	public String getName() {
 		return "council";
 	}
+
+	@Override
+	protected String getDescription() {
+		return "Pictures of the goings-on at the top of the hierarchy";
+	}
+
+	@Override
+	public boolean isHidden() {
+		return true;
+	}
 }

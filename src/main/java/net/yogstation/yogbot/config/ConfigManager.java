@@ -39,7 +39,8 @@ public final class ConfigManager {
 			instance = clazz.getDeclaredConstructor().newInstance();
 		} catch (ReflectiveOperationException e) {
 			LOGGER.error("Failed to initialize {}.", clazz.getName(), e);
-			return null;
+			System.exit(0);
+			return null; // Makes the linter happy for references to instance later
 		}
 
 		// Load the overrides from the config file

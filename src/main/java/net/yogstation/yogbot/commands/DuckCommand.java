@@ -77,4 +77,14 @@ public class DuckCommand extends ImageCommand {
 	public String getName() {
 		return "duck";
 	}
+
+	@Override
+	protected String getDescription() {
+		return "Pictures of the quack";
+	}
+
+	@Override
+	public boolean isHidden() {
+		return true;
+	}
 }

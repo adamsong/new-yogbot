@@ -1,9 +1,9 @@
 package net.yogstation.yogbot.commands;
 
 import discord4j.core.event.domain.message.MessageCreateEvent;
-import discord4j.core.object.Embed;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.core.spec.MessageCreateSpec;
+import net.yogstation.yogbot.Yogbot;
 import net.yogstation.yogbot.listeners.IEventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +18,16 @@ public abstract class TextCommand implements IEventHandler<MessageCreateEvent> {
 	}
 
 	protected abstract Mono<?> doCommand(MessageCreateEvent event);
+	protected abstract String getDescription();
+
+	public String getHelpText() {
+		assert Yogbot.config.discordConfig != null;
+		return String.format("    `%s%s` - %s", Yogbot.config.discordConfig.commandPrefix, getName(), getDescription());
+	}
+
+	public boolean isHidden() {
+		return false;
+	}
 
 	protected Mono<?> doError(MessageCreateEvent event) {
 		return Mono.empty();

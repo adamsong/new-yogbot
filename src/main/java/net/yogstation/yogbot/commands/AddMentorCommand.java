@@ -11,10 +11,6 @@ import java.util.Locale;
 
 public class AddMentorCommand extends AddRankCommand {
 
-	public AddMentorCommand() {
-		super("addmentor");
-	}
-
 	@Override
 	protected Mono<?> doCommand(MessageCreateEvent event) {
 		String[] args = event.getMessage().getContent().split(" ");
@@ -44,5 +40,15 @@ public class AddMentorCommand extends AddRankCommand {
 	@Override
 	public String getName() {
 		return "addmentor";
+	}
+
+	@Override
+	protected String getRequiredPermissions() {
+		return "addmentor";
+	}
+
+	@Override
+	protected String getDescription() {
+		return "Gives a user Mentor rank";
 	}
 }

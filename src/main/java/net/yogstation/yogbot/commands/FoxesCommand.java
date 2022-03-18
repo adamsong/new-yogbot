@@ -182,4 +182,14 @@ public class FoxesCommand extends ImageCommand{
 	public String getName() {
 		return "fox";
 	}
+
+	@Override
+	protected String getDescription() {
+		return "Pictures of the cutest animals in your bins";
+	}
+
+	@Override
+	public boolean isHidden() {
+		return true;
+	}
 }
