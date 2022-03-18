@@ -4,6 +4,7 @@ public class DiscordConfig {
 	public String botToken = "No token here";
 
 	public String commandPrefix = "!";
+	public String serverName = "Yogstation 13";
 
 	public boolean useLocalCommands = false;
 
