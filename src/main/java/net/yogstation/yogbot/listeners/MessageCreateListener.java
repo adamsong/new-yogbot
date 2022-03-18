@@ -18,6 +18,10 @@ public class MessageCreateListener {
 		commands.add(new AddMentorCommand());
 		commands.add(new AshCommand());
 		commands.add(new BannuCommand());
+		commands.add(new BugCommand());
+		commands.add(new CoderCommand());
+		commands.add(new CorgiCommand());
+		commands.add(new CouncilCommand());
 		commands.add(new EightBallCommand());
 	}
 	
