@@ -2,13 +2,15 @@ package net.yogstation.yogbot;
 
 import discord4j.core.DiscordClientBuilder;
 import discord4j.core.GatewayDiscordClient;
-import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
+import discord4j.core.event.domain.interaction.ModalSubmitInteractionEvent;
 import discord4j.core.event.domain.interaction.UserInteractionEvent;
 import discord4j.core.event.domain.lifecycle.ReadyEvent;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.User;
+import net.yogstation.yogbot.bans.BanManager;
 import net.yogstation.yogbot.config.ConfigManager;
 import net.yogstation.yogbot.listeners.MessageCreateListener;
+import net.yogstation.yogbot.listeners.ModalSubmitListener;
 import net.yogstation.yogbot.listeners.UserCommandListener;
 import net.yogstation.yogbot.permissions.PermissionsManager;
 import org.slf4j.Logger;
@@ -25,9 +27,10 @@ public class Yogbot {
 
 	public static final ConfigManager config = new ConfigManager();
 	public static final PermissionsManager permissions = new PermissionsManager();
-	public static final DatabaseManager database;
 	public static final ByondConnector byondConnector = new ByondConnector();
+	public static final BanManager banManager = new BanManager();
 
+	public static final DatabaseManager database;
 	static {
 		DatabaseManager manager = null;
 		try {
@@ -38,10 +41,12 @@ public class Yogbot {
 		database = manager;
 	}
 
+	public static GatewayDiscordClient client;
+
 	public static void main(String[] args) {
 		if(database == null) return;
 
-		GatewayDiscordClient client = DiscordClientBuilder.create(config.discordConfig.botToken)
+		client = DiscordClientBuilder.create(config.discordConfig.botToken)
 				.build().login().block();
 		
 		if (client == null) {
@@ -61,6 +66,7 @@ public class Yogbot {
 		// Register the listeners
 		client.on(MessageCreateEvent.class, MessageCreateListener::handle).subscribe();
 		client.on(UserInteractionEvent.class, UserCommandListener::handle).subscribe();
+		client.on(ModalSubmitInteractionEvent.class, ModalSubmitListener::handle).subscribe();
 
 		// Finalize setup
 		client.on(ReadyEvent.class, event -> Mono.fromRunnable(() -> {
