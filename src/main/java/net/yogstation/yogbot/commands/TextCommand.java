@@ -1,6 +1,8 @@
 package net.yogstation.yogbot.commands;
 
 import discord4j.core.event.domain.message.MessageCreateEvent;
+import discord4j.core.object.Embed;
+import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.core.spec.MessageCreateSpec;
 import net.yogstation.yogbot.listeners.IEventHandler;
 import org.slf4j.Logger;
@@ -30,6 +32,14 @@ public abstract class TextCommand implements IEventHandler<MessageCreateEvent> {
 			channel.createMessage(MessageCreateSpec.builder()
 					.messageReference(event.getMessage().getId())
 					.content(message).build())
+		);
+	}
+
+	protected Mono<?> reply(MessageCreateEvent event, EmbedCreateSpec embed) {
+		return event.getMessage().getChannel().flatMap(channel ->
+				channel.createMessage(MessageCreateSpec.builder()
+						.messageReference(event.getMessage().getId())
+						.addEmbed(embed).build())
 		);
 	}
 

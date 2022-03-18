@@ -16,9 +16,12 @@ import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 
 import java.sql.SQLException;
+import java.util.Random;
 
 public class Yogbot {
 	private static final Logger LOGGER = LoggerFactory.getLogger(Yogbot.class);
+
+	public static final Random random = new Random();
 
 	public static final ConfigManager config = new ConfigManager();
 	public static final PermissionsManager permissions = new PermissionsManager();
