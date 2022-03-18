@@ -17,6 +17,7 @@ public class MessageCreateListener {
 		commands.add(new AddAOCommand());
 		commands.add(new AddMentorCommand());
 		commands.add(new AshCommand());
+		commands.add(new BannuCommand());
 		commands.add(new EightBallCommand());
 	}
 	
