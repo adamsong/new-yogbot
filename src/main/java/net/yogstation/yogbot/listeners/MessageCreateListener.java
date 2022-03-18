@@ -22,7 +22,11 @@ public class MessageCreateListener {
 		commands.add(new CoderCommand());
 		commands.add(new CorgiCommand());
 		commands.add(new CouncilCommand());
+		commands.add(new DuckCommand());
+		commands.add(new EggrpCommand());
 		commands.add(new EightBallCommand());
+		commands.add(new FoxesCommand());
+		commands.add(new HardyCommand());
 	}
 	
 	public static Mono<?> handle(MessageCreateEvent event) {
