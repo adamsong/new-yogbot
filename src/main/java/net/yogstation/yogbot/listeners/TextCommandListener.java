@@ -40,6 +40,12 @@ public class TextCommandListener {
 		commands.add(new LockerCommand());
 		commands.add(new LoreBanCommand());
 		commands.add(new MHelpCommand());
+		commands.add(new MentorBanCommand());
+		commands.add(new MojaCommand());
+		commands.add(new MyIDCommand());
+		commands.add(new MyNotesCommand());
+		commands.add(new NiclasCommand());
+		commands.add(new NotesCommand());
 	}
 
 	public static List<String> getHelpMessages(Member member, boolean hidden) {

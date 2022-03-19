@@ -15,4 +15,5 @@ public class DiscordConfig {
 	// Punishment Roles
 	public long softBanRole = 302093934551629827L;
 	public long loreBanRole = 716784185192480798L;
+	public long mentorBanRole = 865043884170149928L;
 }

@@ -21,6 +21,7 @@ public abstract class PermissionsCommand extends TextCommand {
 	}
 
 	public boolean hasPermission(Member member) {
+		if(getRequiredPermissions() == null) return true;
 		return Yogbot.permissions.hasPermission(member, getRequiredPermissions());
 	}
 
