@@ -39,6 +39,7 @@ public class TextCommandListener {
 		commands.add(new LizardCommand());
 		commands.add(new LockerCommand());
 		commands.add(new LoreBanCommand());
+		commands.add(new MHelpCommand());
 	}
 
 	public static List<String> getHelpMessages(Member member, boolean hidden) {
