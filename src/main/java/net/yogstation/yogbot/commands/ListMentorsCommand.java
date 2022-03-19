@@ -6,25 +6,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
-public class ListAdminsCommand extends TextCommand {
+public class ListMentorsCommand extends TextCommand {
 	private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
 	@Override
 	protected Mono<?> doCommand(MessageCreateEvent event) {
 		try (Connection connection = Yogbot.database.getConnection();
 			 PreparedStatement stmt = connection.prepareStatement(
-				 String.format("SELECT ckey,`rank` FROM `%s`", Yogbot.database.prefix("admin"))
+				 String.format("SELECT ckey FROM `%s`", Yogbot.database.prefix("mentor"))
 			 )
 		) {
 			ResultSet results = stmt.executeQuery();
-			StringBuilder builder = new StringBuilder("Current Admins:");
+			StringBuilder builder = new StringBuilder("Current Mentors:");
 			while(results.next()) {
 				builder.append("\n");
 				builder.append(results.getString("ckey"));
-				builder.append(" - ");
-				builder.append(results.getString("rank"));
 			}
 			results.close();
 			return reply(event, builder.toString());
@@ -36,11 +37,11 @@ public class ListAdminsCommand extends TextCommand {
 
 	@Override
 	protected String getDescription() {
-		return "Get current admins.";
+		return "Get current mentors.";
 	}
 
 	@Override
 	public String getName() {
-		return "listadmins";
+		return "listmentors";
 	}
 }
