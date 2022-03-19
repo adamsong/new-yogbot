@@ -31,6 +31,8 @@ public class TextCommandListener {
 		commands.add(new HardyCommand());
 		commands.add(new HelpCommand());
 		commands.add(new InfoCommand());
+		commands.add(new JamieCommand());
+		commands.add(new KMCCommand());
 	}
 
 	public static List<String> getHelpMessages(Member member, boolean hidden) {
