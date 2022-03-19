@@ -49,6 +49,7 @@ public class TextCommandListener {
 		commands.add(new PingCommand());
 		commands.add(new RemoveAOCommand());
 		commands.add(new RemoveMentorCommand());
+		commands.add(new ReviewCommand());
 	}
 
 	public static List<String> getHelpMessages(Member member, boolean hidden) {
