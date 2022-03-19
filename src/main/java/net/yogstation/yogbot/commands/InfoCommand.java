@@ -37,7 +37,6 @@ public class InfoCommand extends TextCommand {
 		int roundDuration = Integer.parseInt(statusValues.getOrDefault("round_duration", List.of("Unknown")).get(0)) / 60;
 		String shuttleMode = statusValues.getOrDefault("shuttle_mode", List.of("idle")).get(0);
 		String shuttleModeDisplay = switch (shuttleMode) {
-			case "idle" -> "Idle";
 			case "igniting", "docked" -> "Docked";
 			case "recall" -> "Recalled";
 			case "call", "landing" -> "Called";
@@ -45,6 +44,7 @@ public class InfoCommand extends TextCommand {
 			case "escape" -> "Departed";
 			case "endgame: game over" -> "Round Over";
 			case "recharging" -> "Charging";
+			default -> "Idle";
 		};
 
 		int shuttleTime = Integer.parseInt(statusValues.getOrDefault("shuttle_timer", List.of("0")).get(0)) / 60;

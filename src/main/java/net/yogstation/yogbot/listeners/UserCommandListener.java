@@ -5,6 +5,7 @@ import discord4j.core.event.domain.interaction.UserInteractionEvent;
 import net.yogstation.yogbot.commands.ActivityCommand;
 import net.yogstation.yogbot.commands.EightBallCommand;
 import net.yogstation.yogbot.interactions.IInteractionHandler;
+import net.yogstation.yogbot.interactions.KickCommand;
 import net.yogstation.yogbot.interactions.SoftbanCommand;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -17,6 +18,7 @@ public class UserCommandListener {
 	
 	static {
 		commands.add(new SoftbanCommand());
+		commands.add(new KickCommand());
 	}
 
 	public static List<String> getCommandURIs() {

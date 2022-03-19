@@ -1,7 +1,6 @@
 package net.yogstation.yogbot.permissions;
 
 import discord4j.core.object.entity.Member;
-import net.yogstation.yogbot.Yogbot;
 
 import java.util.HashMap;
 import java.util.Map;
