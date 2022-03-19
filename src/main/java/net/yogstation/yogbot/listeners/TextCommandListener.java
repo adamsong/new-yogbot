@@ -33,6 +33,8 @@ public class TextCommandListener {
 		commands.add(new InfoCommand());
 		commands.add(new JamieCommand());
 		commands.add(new KMCCommand());
+		commands.add(new KtlwjecCommand());
+		commands.add(new ListAdminsCommand());
 	}
 
 	public static List<String> getHelpMessages(Member member, boolean hidden) {
