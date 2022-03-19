@@ -46,6 +46,9 @@ public class TextCommandListener {
 		commands.add(new MyNotesCommand());
 		commands.add(new NiclasCommand());
 		commands.add(new NotesCommand());
+		commands.add(new PingCommand());
+		commands.add(new RemoveAOCommand());
+		commands.add(new RemoveMentorCommand());
 	}
 
 	public static List<String> getHelpMessages(Member member, boolean hidden) {

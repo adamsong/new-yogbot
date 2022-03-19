@@ -54,4 +54,8 @@ public class StringUtils {
 			URLDecoder.decode(value, StandardCharsets.UTF_8)
 		);
 	}
+
+	public static String ckey_ize(String key) {
+		return key.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9]", "");
+	}
 }

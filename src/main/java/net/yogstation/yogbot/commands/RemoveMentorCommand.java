@@ -8,21 +8,19 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-public class AddMentorCommand extends EditRankCommand {
+public class RemoveMentorCommand extends EditRankCommand {
 
 	@Override
 	protected Mono<?> doCommand(MessageCreateEvent event) {
 		CommandTarget target = getTarget(event);
 		if(target == null)
-			return reply(event, String.format("Correct usage: `%saddmentor <ckey or @Username>`", Yogbot.config.discordConfig.commandPrefix));
+			return reply(event, String.format("Correct usage: `%sremovementor <ckey or @Username>`", Yogbot.config.discordConfig.commandPrefix));
 		try (
 				Connection connection = Yogbot.database.getConnection();
-				PreparedStatement mentorCheckStmt = connection.prepareStatement(String.format(
-						"SELECT ckey FROM `%s` WHERE `ckey` = ?;", Yogbot.database.prefix("mentor")));
 				PreparedStatement mentorSetStatement = connection.prepareStatement(String.format(
-						"INSERT INTO `%s` (`ckey`, `position`) VALUES (?, 'Mentor');", Yogbot.database.prefix("mentor")))
+						"DELETE FROM `%s` WHERE `ckey` = ?;", Yogbot.database.prefix("mentor")))
 				){
-			return giveRank(event, target, mentorCheckStmt, mentorSetStatement, Yogbot.config.discordConfig.mentorRole);
+			return removeRank(event, target, mentorSetStatement, Yogbot.config.discordConfig.mentorRole);
 		} catch (SQLException e) {
 			LOGGER.error("Error in AddMentorCommand", e);
 			return reply(event, "Unable to access database.");
@@ -31,16 +29,16 @@ public class AddMentorCommand extends EditRankCommand {
 
 	@Override
 	public String getName() {
-		return "addmentor";
+		return "removementor";
 	}
 
 	@Override
 	protected String getRequiredPermissions() {
-		return "addmentor";
+		return "removementor";
 	}
 
 	@Override
 	protected String getDescription() {
-		return "Gives a user Mentor rank";
+		return "Removes a user's Mentor rank";
 	}
 }

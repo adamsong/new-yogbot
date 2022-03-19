@@ -10,30 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class GetNotesCommand extends PermissionsCommand {
-	protected List<String> getNotes(long id, boolean showAdmin) {
-		try (Connection connection = Yogbot.database.getConnection();
-			 PreparedStatement ckeyStmt = connection.prepareStatement(String.format(
-				 "SELECT ckey FROM `%s` WHERE `discord_id` = ?", Yogbot.database.prefix("player")))
-		) {
-			ckeyStmt.setLong(1, id);
-			ResultSet ckeyResults = ckeyStmt.executeQuery();
-			if (!ckeyResults.next()) {
-				ckeyResults.close();
-				return List.of("Cannot find linked byond account.");
-			}
-			String ckey = ckeyResults.getString("ckey");
-			if (ckeyResults.next()) {
-				ckeyResults.close();
-				return List.of("Multiple accounts linked to discord ID");
-			}
-			ckeyResults.close();
-
-			return getNotes(ckey, showAdmin);
-		} catch (SQLException e) {
-			LOGGER.error("Error getting notes", e);
-			return List.of("A SQL Error has occurred");
-		}
-	}
 
 	protected List<String> getNotes(String ckey, boolean showAdmin) {
 		try (Connection connection = Yogbot.database.getConnection();
