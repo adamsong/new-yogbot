@@ -36,6 +36,8 @@ public class TextCommandListener {
 		commands.add(new KtlwjecCommand());
 		commands.add(new ListAdminsCommand());
 		commands.add(new ListMentorsCommand());
+		commands.add(new LizardCommand());
+		commands.add(new LockerCommand());
 	}
 
 	public static List<String> getHelpMessages(Member member, boolean hidden) {
