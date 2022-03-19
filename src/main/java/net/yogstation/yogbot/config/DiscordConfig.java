@@ -11,6 +11,7 @@ public class DiscordConfig {
 	public long mainGuildID = 134720091576205312L;
 	public long aoRole = 471634210923216906L;
 	public long mentorRole = 505280515322937355L;
+	public long jesterRole = 539846767827746817L;
 
 	// Punishment Roles
 	public long softBanRole = 302093934551629827L;
