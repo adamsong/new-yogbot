@@ -31,7 +31,7 @@ public class BanManager extends TimerTask{
 		List<BanRecord> toRemove = new ArrayList<>();
 		tempBans.stream().filter(BanRecord::hasExpired).forEach(banRecord -> {
 			guild.getMemberById(banRecord.snowflake()).flatMap(member ->
-				member.removeRole(Snowflake.of(Yogbot.config.discordConfig.softbanRole), "Softban Expired")).block();
+				member.removeRole(Snowflake.of(Yogbot.config.discordConfig.softBanRole), "Softban Expired")).block();
 			toRemove.add(banRecord);
 		});
 		tempBans.removeAll(toRemove);
@@ -54,7 +54,7 @@ public class BanManager extends TimerTask{
 			banMessage.append("not expire.");
 		}
 
-		return member.addRole(Snowflake.of(Yogbot.config.discordConfig.softbanRole),
+		return member.addRole(Snowflake.of(Yogbot.config.discordConfig.softBanRole),
 			String.format("%ssoftban by %s for %s",
 			duration <= 0 ? "Permanent ": "Temporary ", author, reason.trim())).and(
 				member.getPrivateChannel().flatMap(privateChannel ->
@@ -65,7 +65,7 @@ public class BanManager extends TimerTask{
 	public Mono<?> unban(Snowflake snowflake) {
 		tempBans.removeAll(tempBans.stream().filter(banRecord -> banRecord.snowflake().equals(snowflake)).toList());
 		return Yogbot.client.getMemberById(Snowflake.of(Yogbot.config.discordConfig.mainGuildID), snowflake).flatMap(member ->
-			member.removeRole(Snowflake.of(Yogbot.config.discordConfig.softbanRole))
+			member.removeRole(Snowflake.of(Yogbot.config.discordConfig.softBanRole))
 		);
 	}
 }
