@@ -11,12 +11,19 @@ public class AdminWhoCommand extends TextCommand {
 
 	@Override
 	protected Mono<?> doCommand(MessageCreateEvent event) {
+		String admins = getAdmins(event);
+		if(admins == null) return reply(event, "There was an error getting the admins");
+		return reply(event, admins);
+	}
+
+	static String getAdmins(MessageCreateEvent event) {
 		var byondMessage = "?adminwho";
 		if(ChannelUtil.isAdminChannel(event.getMessage().getChannelId().asLong()))
 			byondMessage += "&adminchannel=1";
 		String admins = (String) Yogbot.byondConnector.request(byondMessage);
-		if(admins == null) return reply(event, "There was an error getting the admins");
-		return reply(event, admins);
+		if(admins == null) return null;
+		admins = admins.replaceAll("\0", "");
+		return admins;
 	}
 
 	@Override

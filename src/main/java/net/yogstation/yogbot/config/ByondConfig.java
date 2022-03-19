@@ -5,4 +5,6 @@ public class ByondConfig {
 
 	public String serverAddress = "158.69.120.60";
 	public int serverPort = 4133;
+
+	public String serverJoinAddress = "https://yogstation.net/play.php";
 }

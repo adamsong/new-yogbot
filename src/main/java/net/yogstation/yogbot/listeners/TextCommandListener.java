@@ -30,6 +30,7 @@ public class TextCommandListener {
 		commands.add(new FoxesCommand());
 		commands.add(new HardyCommand());
 		commands.add(new HelpCommand());
+		commands.add(new InfoCommand());
 	}
 
 	public static List<String> getHelpMessages(Member member, boolean hidden) {
