@@ -50,6 +50,8 @@ public class TextCommandListener {
 		commands.add(new RemoveAOCommand());
 		commands.add(new RemoveMentorCommand());
 		commands.add(new ReviewCommand());
+		commands.add(new SubscribeCommand());
+		commands.add(new UnsubscribeCommand());
 	}
 
 	public static List<String> getHelpMessages(Member member, boolean hidden) {
