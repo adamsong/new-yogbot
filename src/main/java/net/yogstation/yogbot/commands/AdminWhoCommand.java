@@ -3,6 +3,7 @@ package net.yogstation.yogbot.commands;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import net.yogstation.yogbot.Yogbot;
 import net.yogstation.yogbot.util.ChannelUtil;
+import net.yogstation.yogbot.util.Result;
 import reactor.core.publisher.Mono;
 
 import java.nio.channels.Channel;
@@ -20,8 +21,8 @@ public class AdminWhoCommand extends TextCommand {
 		var byondMessage = "?adminwho";
 		if(ChannelUtil.isAdminChannel(event.getMessage().getChannelId().asLong()))
 			byondMessage += "&adminchannel=1";
-		String admins = (String) Yogbot.byondConnector.request(byondMessage);
-		if(admins == null) return null;
+		Result<Object, String> result = Yogbot.byondConnector.request(byondMessage);
+		String admins = (String) (result.hasError() ? result.getError() : result.getValue());
 		admins = admins.replaceAll("\0", "");
 		return admins;
 	}

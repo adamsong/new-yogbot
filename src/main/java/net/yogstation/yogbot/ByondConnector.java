@@ -1,6 +1,7 @@
 package net.yogstation.yogbot;
 
 import net.yogstation.yogbot.config.ByondConfig;
+import net.yogstation.yogbot.util.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,6 +10,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 
 public class ByondConnector {
@@ -19,7 +21,7 @@ public class ByondConnector {
 		config = Yogbot.config.byondConfig;
 	}
 
-	public Object request(String query) {
+	public Result<Object, String> request(String query) {
 		query += "&key=" + config.serverKey;
 
 		ByteBuffer buffer = ByteBuffer.allocate(query.length() + 10);
@@ -35,9 +37,9 @@ public class ByondConnector {
 
 			InputStream inputStream = socket.getInputStream();
 			byte[] headerBuffer = new byte[4];
-			if(inputStream.read(headerBuffer) < 4) return null;
+			if(inputStream.read(headerBuffer) < 4) return Result.error("Returned insufficient packets");
 			//noinspection ConstantConditions // intellij linter doesn't understand out paramters
-			if(headerBuffer[0] != 0x00 || headerBuffer[1] != 0x83) return null;
+			if(headerBuffer[0] != 0x00 || headerBuffer[1] != (byte) 0x83) return Result.error("Malformed response packet, " + headerBuffer[0] + " " + headerBuffer[1]);
 			short size = ByteBuffer.wrap(headerBuffer, 2, 2).getShort();
 
 			byte[] bodyBuffer = new byte[size];
@@ -45,12 +47,13 @@ public class ByondConnector {
 
 			ByteBuffer bb = ByteBuffer.wrap(bodyBuffer);
 			byte type = bb.get();
-			if(type == 0x2A)
-				return bb.getFloat();
-			if(type == 0x06) {
-				return StandardCharsets.UTF_8.decode(bb);
+			if(type == 0x2A) {
+				return Result.success(bb.order(ByteOrder.LITTLE_ENDIAN).getFloat());
 			}
-			return null;
+			if(type == 0x06) {
+				return Result.success(StandardCharsets.UTF_8.decode(bb).toString());
+			}
+			return Result.error("Type is " + type);
 		} catch (IOException e) {
 			e.printStackTrace();
 			return null;

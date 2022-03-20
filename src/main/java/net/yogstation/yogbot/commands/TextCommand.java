@@ -55,8 +55,8 @@ public abstract class TextCommand implements IEventHandler<MessageCreateEvent> {
 	protected Mono<?> reply(MessageCreateEvent event, EmbedCreateSpec embed) {
 		return event.getMessage().getChannel().flatMap(channel ->
 				channel.createMessage(MessageCreateSpec.builder()
-						.messageReference(event.getMessage().getId())
-						.addEmbed(embed).build())
+					.messageReference(event.getMessage().getId())
+					.content("").addEmbed(embed).build())
 		);
 	}
 
