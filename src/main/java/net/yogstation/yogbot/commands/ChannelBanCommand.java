@@ -12,7 +12,7 @@ public abstract class ChannelBanCommand extends PermissionsCommand {
 	@Override
 	protected Mono<?> doCommand(MessageCreateEvent event) {
 		if(event.getMessage().getMemberMentions().size() != 1)
-			return reply(event, String.format("Usage is `%s%s [@UserName]`", Yogbot.config.discordConfig.commandPrefix, getName()));
+			return reply(event, "Usage is `%s%s [@UserName]`", Yogbot.config.discordConfig.commandPrefix, getName());
 		PartialMember partialMember = event.getMessage().getMemberMentions().get(0);
 		if(partialMember.getRoleIds().contains(getBanRole()))
 			return partialMember.removeRole(getBanRole(), String.format("Ban lifted by %s", event.getMessage().getAuthor().isPresent() ? event.getMessage().getAuthor().get().getUsername() : "unknown"))

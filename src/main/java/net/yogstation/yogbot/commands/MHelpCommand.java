@@ -3,6 +3,7 @@ package net.yogstation.yogbot.commands;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.User;
 import net.yogstation.yogbot.Yogbot;
+import net.yogstation.yogbot.util.Result;
 import reactor.core.publisher.Mono;
 
 import java.net.URLEncoder;
@@ -22,7 +23,7 @@ public class MHelpCommand extends PermissionsCommand {
 	protected Mono<?> doCommand(MessageCreateEvent event) {
 		Matcher matcher = argsPattern.matcher(event.getMessage().getContent());
 		if(!matcher.matches())
-			return reply(event, String.format("Usage is `%smhelp <ckey> <message>", Yogbot.config.discordConfig.commandPrefix));
+			return reply(event, "Usage is `%smhelp <ckey> <message>", Yogbot.config.discordConfig.commandPrefix);
 		StringBuilder builder = new StringBuilder("?mhelp=1");
 		builder.append("&msg=").append(URLEncoder.encode(matcher.group(2), StandardCharsets.UTF_8));
 		builder.append("&admin=");
@@ -35,9 +36,10 @@ public class MHelpCommand extends PermissionsCommand {
 			builder.append("&admin_id=").append("0");
 		}
 		builder.append("&whom=").append(URLEncoder.encode(matcher.group(1), StandardCharsets.UTF_8));
-		Object result = Yogbot.byondConnector.request(builder.toString());
-		if(!(result instanceof Float)) {
-			return reply(event, String.format("Error: Mentor-PM: Client %s not found.", matcher.group(1)));
+		Result<Object, String> result = Yogbot.byondConnector.request(builder.toString());
+		if(result.hasError()) return reply(event, result.getError());
+		if(((float) result.getValue()) == 0) {
+			return reply(event, "Error: Mentor-PM: Client %s not found.", matcher.group(1));
 		}
 		return Mono.empty();
 	}

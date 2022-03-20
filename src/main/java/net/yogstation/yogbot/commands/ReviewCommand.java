@@ -28,7 +28,7 @@ public class ReviewCommand extends PermissionsCommand{
 	@Override
 	protected Mono<?> doCommand(MessageCreateEvent event) {
 		String[] args = event.getMessage().getContent().split(" ");
-		if(args.length < 2) return reply(event, String.format("Usage is: `%sreview <ckey> [strict]`", Yogbot.config.discordConfig.commandPrefix));
+		if(args.length < 2) return reply(event, "Usage is: `%sreview <ckey> [strict]`", Yogbot.config.discordConfig.commandPrefix);
 		String ckey = StringUtils.ckey_ize(args[1]);
 		boolean strict = (event.getMessage().getChannelId().asLong() == Yogbot.config.channelsConfig.channelAdmin)
 			|| (args.length >= 3 && args[2].equalsIgnoreCase("strict"));

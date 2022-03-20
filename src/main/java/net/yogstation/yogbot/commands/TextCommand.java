@@ -43,7 +43,11 @@ public abstract class TextCommand implements IEventHandler<MessageCreateEvent> {
 	protected boolean canFire(MessageCreateEvent event) {
 		return true;
 	}
-
+	
+	protected Mono<?> reply(MessageCreateEvent event, String format, Object... args) {
+		return reply(event, String.format(format, args));
+	}
+	
 	protected Mono<?> reply(MessageCreateEvent event, String message) {
 		return event.getMessage().getChannel().flatMap(channel ->
 			channel.createMessage(MessageCreateSpec.builder()
@@ -74,46 +78,47 @@ public abstract class TextCommand implements IEventHandler<MessageCreateEvent> {
 		if(args.length < 2) return null;
 		return CommandTarget.of(StringUtils.ckey_ize(args[1]));
 	}
+	
+	static final class CommandTarget {
+		private Snowflake snowflake;
+		private String ckey;
+		
+		private CommandTarget(Snowflake snowflake, String ckey) {
+			this.snowflake = snowflake;
+			this.ckey = ckey;
+		}
+		
+		public static CommandTarget of(Snowflake snowflake) {
+			return new CommandTarget(snowflake, null);
+		}
+		
+		public static CommandTarget of(String ckey) {
+			return new CommandTarget(null, ckey);
+		}
+		
+		public String populate() {
+			if(snowflake == null) {
+				Result<Snowflake, String> snowflakeResult = ByondLinkUtil.getMemberID(ckey);
+				if(snowflakeResult.hasError()) return snowflakeResult.getError();
+				snowflake = snowflakeResult.getValue();
+			}
+			
+			if(ckey == null) {
+				Result<String, String> ckeyResult = ByondLinkUtil.getCkey(snowflake);
+				if(ckeyResult.hasError()) return ckeyResult.getError();
+				ckey = ckeyResult.getValue();
+			}
+			
+			return null;
+		}
+		
+		public Snowflake getSnowflake() {
+			return snowflake;
+		}
+		
+		public String getCkey() {
+			return ckey;
+		}
+	}
 }
 
-class CommandTarget {
-	private Snowflake snowflake;
-	private String ckey;
-
-	private CommandTarget(Snowflake snowflake, String ckey) {
-		this.snowflake = snowflake;
-		this.ckey = ckey;
-	}
-
-	public static CommandTarget of(Snowflake snowflake) {
-		return new CommandTarget(snowflake, null);
-	}
-
-	public static CommandTarget of(String ckey) {
-		return new CommandTarget(null, ckey);
-	}
-
-	public String populate() {
-		if(snowflake == null) {
-			Result<Snowflake, String> snowflakeResult = ByondLinkUtil.getMemberID(ckey);
-			if(snowflakeResult.hasError()) return snowflakeResult.getError();
-			snowflake = snowflakeResult.getValue();
-		}
-
-		if(ckey == null) {
-			Result<String, String> ckeyResult = ByondLinkUtil.getCkey(snowflake);
-			if(ckeyResult.hasError()) return ckeyResult.getError();
-			ckey = ckeyResult.getValue();
-		}
-
-		return null;
-	}
-
-	public Snowflake getSnowflake() {
-		return snowflake;
-	}
-
-	public String getCkey() {
-		return ckey;
-	}
-}

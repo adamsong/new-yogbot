@@ -14,7 +14,7 @@ public class RemoveMentorCommand extends EditRankCommand {
 	protected Mono<?> doCommand(MessageCreateEvent event) {
 		CommandTarget target = getTarget(event);
 		if(target == null)
-			return reply(event, String.format("Correct usage: `%sremovementor <ckey or @Username>`", Yogbot.config.discordConfig.commandPrefix));
+			return reply(event, "Correct usage: `%sremovementor <ckey or @Username>`", Yogbot.config.discordConfig.commandPrefix);
 		try (
 				Connection connection = Yogbot.database.getConnection();
 				PreparedStatement mentorSetStatement = connection.prepareStatement(String.format(

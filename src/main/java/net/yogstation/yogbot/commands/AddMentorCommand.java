@@ -14,7 +14,7 @@ public class AddMentorCommand extends EditRankCommand {
 	protected Mono<?> doCommand(MessageCreateEvent event) {
 		CommandTarget target = getTarget(event);
 		if(target == null)
-			return reply(event, String.format("Correct usage: `%saddmentor <ckey or @Username>`", Yogbot.config.discordConfig.commandPrefix));
+			return reply(event, "Correct usage: `%saddmentor <ckey or @Username>`", Yogbot.config.discordConfig.commandPrefix);
 		try (
 				Connection connection = Yogbot.database.getConnection();
 				PreparedStatement mentorCheckStmt = connection.prepareStatement(String.format(

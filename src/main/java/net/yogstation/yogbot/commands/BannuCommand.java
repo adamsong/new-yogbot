@@ -16,7 +16,7 @@ public class BannuCommand extends TextCommand {
 		Matcher matcher = argsPattern.matcher(event.getMessage().getContent());
 		if(!matcher.matches()) {
 			assert Yogbot.config.discordConfig != null;
-			return reply(event, String.format("Usage is `%sbannu [@UserName] <reason>`", Yogbot.config.discordConfig.commandPrefix));
+			return reply(event, "Usage is `%sbannu [@UserName] <reason>`", Yogbot.config.discordConfig.commandPrefix);
 		}
 		String who = matcher.group(1);
 		String reason = matcher.group(2);
@@ -25,7 +25,7 @@ public class BannuCommand extends TextCommand {
 		} else {
 			reason = String.format("\"\"\"\"\"%s\"\"\"\"\"", reason);
 		}
-		return reply(event, String.format("%s HAS BEEN BANED 4 %s", who, reason));
+		return reply(event, "%s HAS BEEN BANED 4 %s", who, reason);
 	}
 
 	@Override

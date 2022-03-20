@@ -7,7 +7,7 @@ public class MyIDCommand extends TextCommand {
 	@Override
 	protected Mono<?> doCommand(MessageCreateEvent event) {
 		if(event.getMessage().getAuthor().isEmpty()) return Mono.empty();
-		return reply(event, String.format("Your ID is %s", event.getMessage().getAuthor().get().getId().asString()));
+		return reply(event, "Your ID is %s", event.getMessage().getAuthor().get().getId().asString());
 	}
 
 	@Override
