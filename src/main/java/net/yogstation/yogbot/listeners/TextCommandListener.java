@@ -51,6 +51,7 @@ public class TextCommandListener {
 		commands.add(new RemoveMentorCommand());
 		commands.add(new ReviewCommand());
 		commands.add(new SubscribeCommand());
+		commands.add(new TicketCommand());
 		commands.add(new UnsubscribeCommand());
 	}
 
