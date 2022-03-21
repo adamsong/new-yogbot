@@ -1,6 +1,7 @@
 package net.yogstation.yogbot.commands;
 
 import discord4j.core.event.domain.message.MessageCreateEvent;
+import discord4j.core.object.presence.Activity;
 import net.yogstation.yogbot.Yogbot;
 import net.yogstation.yogbot.util.StringUtils;
 import org.slf4j.Logger;
@@ -168,28 +169,28 @@ JOIN %s as ranklist ON adminlist.rank = ranklist.`rank`;
 	private String ckey_ize(String key) {
 		return key.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9]", "");
 	}
-}
-
-record Activity(String ckey, String rank,
-				float activity) implements Comparable<Activity> {
-
-	@Override
-	public String ckey() {
-		return ckey;
-	}
-
-	@Override
-	public String rank() {
-		return rank;
-	}
-
-	@Override
-	public float activity() {
-		return activity;
-	}
-
-	@Override
-	public int compareTo(Activity o) {
-		return Float.compare(o.activity, activity);
+	
+	record Activity(String ckey, String rank,
+	                       float activity) implements Comparable<Activity> {
+		
+		@Override
+		public String ckey() {
+			return ckey;
+		}
+		
+		@Override
+		public String rank() {
+			return rank;
+		}
+		
+		@Override
+		public float activity() {
+			return activity;
+		}
+		
+		@Override
+		public int compareTo(Activity o) {
+			return Float.compare(o.activity, activity);
+		}
 	}
 }

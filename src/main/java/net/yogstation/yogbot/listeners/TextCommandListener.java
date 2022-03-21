@@ -53,6 +53,7 @@ public class TextCommandListener {
 		commands.add(new SubscribeCommand());
 		commands.add(new TicketCommand());
 		commands.add(new ToggleOOCCommand());
+		commands.add(new UnlinkCommand());
 		commands.add(new UnsubscribeCommand());
 	}
 
