@@ -68,10 +68,14 @@ public class BanManager extends TimerTask{
 			member.removeRole(Snowflake.of(Yogbot.config.discordConfig.softBanRole))
 		);
 	}
-}
-
-record BanRecord(Snowflake snowflake, LocalDateTime expiration) {
-	public boolean hasExpired() {
-		return expiration.isBefore(LocalDateTime.now());
+	public Mono<?> unban(Member member, String reason, String user) {
+		tempBans.removeAll(tempBans.stream().filter(banRecord -> banRecord.snowflake().equals(member.getId())).toList());
+		return member.removeRole(Snowflake.of(Yogbot.config.discordConfig.softBanRole), String.format("Unbanned by %s for %s", user, reason));
+	}
+	
+	record BanRecord(Snowflake snowflake, LocalDateTime expiration) {
+		public boolean hasExpired() {
+			return expiration.isBefore(LocalDateTime.now());
+		}
 	}
 }
