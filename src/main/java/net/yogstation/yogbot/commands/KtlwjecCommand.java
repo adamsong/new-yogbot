@@ -1,8 +1,17 @@
 package net.yogstation.yogbot.commands;
 
-import java.util.List;
+import net.yogstation.yogbot.config.DiscordConfig;
+import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.Random;
+
+@Component
 public class KtlwjecCommand extends ImageCommand {
+	public KtlwjecCommand(DiscordConfig discordConfig, Random random) {
+		super(discordConfig, random);
+	}
+	
 	@Override
 	protected List<String> getImages() {
 		return List.of(
@@ -44,6 +53,6 @@ public class KtlwjecCommand extends ImageCommand {
 
 	@Override
 	public boolean isHidden() {
-		return true;
+		return super.isHidden();
 	}
 }

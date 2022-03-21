@@ -1,7 +1,5 @@
 package net.yogstation.yogbot.permissions;
 
-import org.slf4j.LoggerFactory;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -86,6 +84,46 @@ public class PermissionsNode {
 		for(PermissionsNode parent : parents) {
 			parent.calculatePermissions();
 			permissions.addAll(parent.getPermissions());
+		}
+	}
+	
+	public static PermissionsNodeBuilder builder() {
+		return new PermissionsNodeBuilder();
+	}
+	
+	static final class PermissionsNodeBuilder {
+		private String name = "";
+		private String[] perms = new String[0];
+		private String[] parents = new String[0];
+		
+		private PermissionsNodeBuilder() {}
+		
+		public PermissionsNodeBuilder setName(String name) {
+			this.name = name;
+			return this;
+		}
+		
+		public PermissionsNodeBuilder setPerms(String... perms) {
+			this.perms = perms;
+			return this;
+		}
+		
+		public PermissionsNodeBuilder setParents(String... parents) {
+			this.parents = parents;
+			return this;
+		}
+		
+		public PermissionsNode build(PermissionsManager manager) {
+			PermissionsNode node = new PermissionsNode(name);
+			node.addPermissions(perms);
+			
+			for(String string : parents) {
+				PermissionsNode parentNode = manager.getNodeFor(string);
+				assert parentNode != null;
+				node.addParents(parentNode);
+			}
+			
+			return node;
 		}
 	}
 }

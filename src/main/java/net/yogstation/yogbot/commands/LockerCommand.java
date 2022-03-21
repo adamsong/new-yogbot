@@ -1,8 +1,17 @@
 package net.yogstation.yogbot.commands;
 
-import java.util.List;
+import net.yogstation.yogbot.config.DiscordConfig;
+import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.Random;
+
+@Component
 public class LockerCommand extends ImageCommand{
+	public LockerCommand(DiscordConfig discordConfig, Random random) {
+		super(discordConfig, random);
+	}
+	
 	@Override
 	protected List<String> getImages() {
 		return List.of(
@@ -68,10 +77,5 @@ public class LockerCommand extends ImageCommand{
 	@Override
 	public String getName() {
 		return "locker";
-	}
-
-	@Override
-	public boolean isHidden() {
-		return true;
 	}
 }

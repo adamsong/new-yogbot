@@ -1,6 +1,9 @@
 package net.yogstation.yogbot.commands;
 
+import net.yogstation.yogbot.DatabaseManager;
 import net.yogstation.yogbot.Yogbot;
+import net.yogstation.yogbot.config.DiscordConfig;
+import net.yogstation.yogbot.permissions.PermissionsManager;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -10,12 +13,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class GetNotesCommand extends PermissionsCommand {
-
+	protected final DatabaseManager database;
+	
+	public GetNotesCommand(DiscordConfig discordConfig, PermissionsManager permissions, DatabaseManager database) {
+		super(discordConfig, permissions);
+		this.database = database;
+	}
+	
 	protected List<String> getNotes(String ckey, boolean showAdmin) {
-		try (Connection connection = Yogbot.database.getConnection();
+		try (Connection connection = database.getConnection();
 			 PreparedStatement notesStmt = connection.prepareStatement(String.format(
 				 "SELECT timestamp, text, adminckey FROM `%s` WHERE `targetckey` = ? AND `type`= \"note\" AND deleted = 0 AND (expire_timestamp > NOW() OR expire_timestamp IS NULL) AND `secret` = 0 ORDER BY `timestamp`",
-				 Yogbot.database.prefix("messages")
+				 database.prefix("messages")
 			 ))
 		) {
 			notesStmt.setString(1, ckey);

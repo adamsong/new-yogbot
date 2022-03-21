@@ -2,7 +2,9 @@ package net.yogstation.yogbot.commands;
 
 import discord4j.common.util.Snowflake;
 import discord4j.core.event.domain.message.MessageCreateEvent;
-import net.yogstation.yogbot.util.Result;
+import net.yogstation.yogbot.DatabaseManager;
+import net.yogstation.yogbot.config.DiscordConfig;
+import net.yogstation.yogbot.permissions.PermissionsManager;
 import reactor.core.publisher.Mono;
 
 import java.sql.PreparedStatement;
@@ -10,9 +12,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public abstract class EditRankCommand extends PermissionsCommand {
-
+	
+	protected final DatabaseManager database;
+	
+	public EditRankCommand(DiscordConfig discordConfig, PermissionsManager permissions, DatabaseManager database) {
+		super(discordConfig, permissions);
+		this.database = database;
+	}
+	
 	protected Mono<?> giveRank(MessageCreateEvent event, CommandTarget target, PreparedStatement rankCheckStmt, PreparedStatement rankSetStmt, long role) throws SQLException {
-		String errors = target.populate();
+		String errors = target.populate(database);
 		if(errors != null) return reply(event, errors);
 
 		Mono<?> result = Mono.empty();
@@ -38,7 +47,7 @@ public abstract class EditRankCommand extends PermissionsCommand {
 	}
 
 	protected Mono<?> removeRank(MessageCreateEvent event, CommandTarget target, PreparedStatement rankSetStmt, long role) throws SQLException {
-		String errors = target.populate();
+		String errors = target.populate(database);
 		if(errors != null) return reply(event, errors);
 
 		Mono<?> result = Mono.empty();

@@ -2,23 +2,30 @@ package net.yogstation.yogbot.commands;
 
 import discord4j.common.util.Snowflake;
 import discord4j.core.event.domain.message.MessageCreateEvent;
-import net.yogstation.yogbot.Yogbot;
+import net.yogstation.yogbot.config.DiscordConfig;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-public class UnsubscribeCommand extends TextCommand{
+@Component
+public class UnsubscribeCommand extends TextCommand {
+	public UnsubscribeCommand(DiscordConfig discordConfig) {
+		super(discordConfig);
+	}
+	
 	@Override
 	protected Mono<?> doCommand(MessageCreateEvent event) {
-		if(event.getMember().isEmpty()) return Mono.empty();
-		return event.getMember().get().removeRole(Snowflake.of(Yogbot.config.discordConfig.subscriberRole)).and(
-			reply(event, "You are no longer a subscriber")
-		);
+		if (event.getMember().isEmpty()) return Mono.empty();
+		return event.getMember()
+			.get()
+			.removeRole(Snowflake.of(discordConfig.subscriberRole))
+			.and(reply(event, "You are no longer a subscriber"));
 	}
-
+	
 	@Override
 	protected String getDescription() {
 		return "unsubscribe to the roundstart announcements";
 	}
-
+	
 	@Override
 	public String getName() {
 		return "subscribe";

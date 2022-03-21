@@ -7,11 +7,21 @@ import discord4j.core.object.component.ActionRow;
 import discord4j.core.object.component.MessageComponent;
 import discord4j.core.object.component.TextInput;
 import discord4j.discordjson.json.ComponentData;
-import net.yogstation.yogbot.Yogbot;
+import net.yogstation.yogbot.bans.BanManager;
+import net.yogstation.yogbot.permissions.PermissionsManager;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-
-public class UnbanCommand implements IInteractionHandler<UserInteractionEvent>, IModalSubmitHandler {
+@Component
+public class UnbanCommand implements IUserCommand, IModalSubmitHandler {
+	private final PermissionsManager permissions;
+	private final BanManager banManager;
+	
+	public UnbanCommand(PermissionsManager permissions, BanManager banManager) {
+		this.permissions = permissions;
+		this.banManager = banManager;
+	}
+	
 	@Override
 	public String getName() {
 		return "Unban";
@@ -19,7 +29,7 @@ public class UnbanCommand implements IInteractionHandler<UserInteractionEvent>, 
 
 	@Override
 	public Mono<?> handle(UserInteractionEvent event) {
-		if(Yogbot.permissions.hasPermission(event.getInteraction().getMember().orElse(null), "ban"))
+		if(permissions.hasPermission(event.getInteraction().getMember().orElse(null), "ban"))
 			return event.reply().withEphemeral(true).withContent("You do not have permission to run that command");
 
 
@@ -57,7 +67,7 @@ public class UnbanCommand implements IInteractionHandler<UserInteractionEvent>, 
 		}
 		String finalReason = reason;
 		return event.getInteraction().getGuild().flatMap(guild ->
-			guild.getMemberById(toBan)).flatMap(member -> Yogbot.banManager.unban(member, finalReason, event.getInteraction().getUser().getUsername()).and(
+			guild.getMemberById(toBan)).flatMap(member -> banManager.unban(member, finalReason, event.getInteraction().getUser().getUsername()).and(
 				event.reply().withEphemeral(true).withContent("Ban issued successfully")));
 	}
 }

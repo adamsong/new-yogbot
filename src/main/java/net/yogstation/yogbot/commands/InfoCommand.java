@@ -1,18 +1,22 @@
 package net.yogstation.yogbot.commands;
 
-import com.mysql.cj.log.Log;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.rest.util.Color;
-import net.yogstation.yogbot.Yogbot;
-import net.yogstation.yogbot.util.ChannelUtil;
+import net.yogstation.yogbot.ByondConnector;
+import net.yogstation.yogbot.config.ByondConfig;
+import net.yogstation.yogbot.config.DiscordChannelsConfig;
+import net.yogstation.yogbot.config.DiscordConfig;
 import net.yogstation.yogbot.util.Result;
 import net.yogstation.yogbot.util.StringUtils;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+@Component
 public class InfoCommand extends TextCommand {
 	private static final Set<String> timerModes = Set.of(
 		"call",
@@ -22,17 +26,29 @@ public class InfoCommand extends TextCommand {
 		"escape",
 		"landing"
 	);
-
+	
+	private final ByondConnector byondConnector;
+	private final ByondConfig byondConfig;
+	private final DiscordChannelsConfig channelsConfig;
+	
+	public InfoCommand(DiscordConfig discordConfig, ByondConnector byondConnector, ByondConfig byondConfig,
+	                   DiscordChannelsConfig channelsConfig) {
+		super(discordConfig);
+		this.byondConnector = byondConnector;
+		this.byondConfig = byondConfig;
+		this.channelsConfig = channelsConfig;
+	}
+	
 	@Override
 	protected Mono<?> doCommand(MessageCreateEvent event) {
-		String admins = AdminWhoCommand.getAdmins(event);
+		String admins = AdminWhoCommand.getAdmins(event.getMessage().getChannelId(), byondConnector, channelsConfig);
 		admins = admins.replaceAll("\t", "");
 		
-		Result<Object, String> pingResponse = Yogbot.byondConnector.request("?ping");
+		Result<Object, String> pingResponse = byondConnector.request("?ping");
 		if(pingResponse.hasError()) return reply(event, pingResponse.getError());
 		int playerCount = (int) (float) (Float) pingResponse.getValue();
 		
-		Result<Object, String> statusResponse = Yogbot.byondConnector.request("?status");
+		Result<Object, String> statusResponse = byondConnector.request("?status");
 		if(statusResponse.hasError()) return reply(event, statusResponse.getError());
 		String statusString = (String) statusResponse.getValue();
 		statusString = statusString.replaceAll("\0", "");
@@ -68,8 +84,8 @@ public class InfoCommand extends TextCommand {
 		});
 		var embedBuilder = EmbedCreateSpec.builder()
 			.color(embedColor)
-			.author("Information", Yogbot.config.byondConfig.serverJoinAddress, "https://i.imgur.com/GPZgtbe.png")
-			.description(String.format("Join the server now at %s", Yogbot.config.byondConfig.serverJoinAddress))
+			.author("Information", byondConfig.serverJoinAddress, "https://i.imgur.com/GPZgtbe.png")
+			.description(String.format("Join the server now at %s", byondConfig.serverJoinAddress))
 			.addField("Players online:", Integer.toString(playerCount), true)
 			.addField("Current round:", roundId, true)
 			.addField("Round duration:", roundDuration + " minutes", true)

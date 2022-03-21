@@ -1,11 +1,11 @@
 package net.yogstation.yogbot.commands;
 
 import discord4j.core.event.domain.message.MessageCreateEvent;
-import discord4j.core.object.presence.Activity;
-import net.yogstation.yogbot.Yogbot;
+import net.yogstation.yogbot.DatabaseManager;
+import net.yogstation.yogbot.config.DiscordConfig;
+import net.yogstation.yogbot.permissions.PermissionsManager;
 import net.yogstation.yogbot.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.sql.Connection;
@@ -14,9 +14,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
 
+@Component
 public class ActivityCommand extends PermissionsCommand {
 
-	private static final String activityQuery = String.format("""
+	private static final String activityQueryFormat = """
 			/*
 MIT License
 
@@ -49,10 +50,7 @@ SELECT adminlist.ckey as 'Ckey',
 	adminlist.rank as AdminRank
 FROM %s as adminlist
 JOIN %s as ranklist ON adminlist.rank = ranklist.`rank`;
-			""",
-			Yogbot.database.prefix("role_time_log"),
-			Yogbot.database.prefix("admin"),
-			Yogbot.database.prefix("admin_ranks"));
+			""";
 
 	private static final List<String> exemptRanks = Arrays.asList(
 			"Host", "Council Member", "RetCoder", "Tribunal", "Retired Admin",
@@ -62,13 +60,21 @@ JOIN %s as ranklist ON adminlist.rank = ranklist.`rank`;
 
 	private static final List<String> ignore_ranks = Arrays.asList("Maintainer", "Bot");
 
+	private final DatabaseManager database;
+	
+	public ActivityCommand(DiscordConfig discordConfig, PermissionsManager permissions, DatabaseManager database) {
+		super(discordConfig, permissions);
+		this.database = database;
+	}
+	
 	@Override
 	public Mono<?> doCommand(MessageCreateEvent event) {
 		try {
 			Mono<?> action = Mono.empty();
-			Connection conn = Yogbot.database.getConnection();
+			Connection conn = database.getConnection();
 			Statement activityStatement = conn.createStatement();
-			ResultSet activityResults = activityStatement.executeQuery(activityQuery);
+			ResultSet activityResults = activityStatement.executeQuery(String.format(activityQueryFormat,
+                 database.prefix("role_time_log"), database.prefix("admin"), database.prefix("admin_ranks") ));
 
 			List<Activity> activityData = new ArrayList<>();
 			int adminLen = 8;
@@ -91,7 +97,7 @@ JOIN %s as ranklist ON adminlist.rank = ranklist.`rank`;
 
 			Set<String> loaAdmins = new HashSet<>();
 			Statement loaStatement = conn.createStatement();
-			ResultSet loaResults = loaStatement.executeQuery("SELECT ckey from " + Yogbot.database.prefix("loa") + " WHERE Now() < expiry_time && revoked IS NULL;");
+			ResultSet loaResults = loaStatement.executeQuery(String.format("SELECT ckey from %s WHERE Now() < expiry_time && revoked IS NULL;", database.prefix("loa")));
 
 			while(loaResults.next()) loaAdmins.add(ckey_ize(loaResults.getString("ckey")));
 			loaResults.close();

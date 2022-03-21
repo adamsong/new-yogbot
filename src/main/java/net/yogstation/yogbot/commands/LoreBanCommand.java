@@ -1,13 +1,20 @@
 package net.yogstation.yogbot.commands;
 
 import discord4j.common.util.Snowflake;
-import net.yogstation.yogbot.Yogbot;
+import net.yogstation.yogbot.config.DiscordConfig;
+import net.yogstation.yogbot.permissions.PermissionsManager;
+import org.springframework.stereotype.Component;
 
+@Component
 public class LoreBanCommand extends ChannelBanCommand {
-
+	
+	public LoreBanCommand(DiscordConfig discordConfig, PermissionsManager permissions) {
+		super(discordConfig, permissions);
+	}
+	
 	@Override
 	protected Snowflake getBanRole() {
-		return Snowflake.of(Yogbot.config.discordConfig.loreBanRole);
+		return Snowflake.of(discordConfig.loreBanRole);
 	}
 
 	@Override

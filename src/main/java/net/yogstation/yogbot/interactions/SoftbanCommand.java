@@ -8,10 +8,21 @@ import discord4j.core.object.component.MessageComponent;
 import discord4j.core.object.component.TextInput;
 import discord4j.discordjson.json.ComponentData;
 import net.yogstation.yogbot.Yogbot;
+import net.yogstation.yogbot.bans.BanManager;
+import net.yogstation.yogbot.permissions.PermissionsManager;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-
-public class SoftbanCommand implements IInteractionHandler<UserInteractionEvent>, IModalSubmitHandler {
+@Component
+public class SoftbanCommand implements IUserCommand, IModalSubmitHandler {
+	private final PermissionsManager permissions;
+	private final BanManager banManager;
+	
+	public SoftbanCommand(PermissionsManager permissions, BanManager banManager) {
+		this.permissions = permissions;
+		this.banManager = banManager;
+	}
+	
 	@Override
 	public String getName() {
 		return "Softban";
@@ -19,7 +30,7 @@ public class SoftbanCommand implements IInteractionHandler<UserInteractionEvent>
 
 	@Override
 	public Mono<?> handle(UserInteractionEvent event) {
-		if(Yogbot.permissions.hasPermission(event.getInteraction().getMember().orElse(null), "ban"))
+		if(permissions.hasPermission(event.getInteraction().getMember().orElse(null), "ban"))
 			return event.reply().withEphemeral(true).withContent("You do not have permission to run that command");
 
 
@@ -69,7 +80,7 @@ public class SoftbanCommand implements IInteractionHandler<UserInteractionEvent>
 		int finalDuration = duration;
 		String finalReason = reason;
 		return event.getInteraction().getGuild().flatMap(guild ->
-			guild.getMemberById(toBan)).flatMap(member -> Yogbot.banManager.ban(member, finalReason, finalDuration, event.getInteraction().getUser().getUsername()).and(
+			guild.getMemberById(toBan)).flatMap(member -> banManager.ban(member, finalReason, finalDuration, event.getInteraction().getUser().getUsername()).and(
 				event.reply().withEphemeral(true).withContent("Ban issued successfully")));
 	}
 }

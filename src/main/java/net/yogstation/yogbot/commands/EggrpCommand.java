@@ -1,9 +1,18 @@
 package net.yogstation.yogbot.commands;
 
+import net.yogstation.yogbot.config.DiscordConfig;
+import org.springframework.stereotype.Component;
+
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
+@Component
 public class EggrpCommand extends ImageCommand {
+	public EggrpCommand(DiscordConfig discordConfig, Random random) {
+		super(discordConfig, random);
+	}
+	
 	@Override
 	protected List<String> getImages() {
 		return Arrays.asList(
@@ -47,10 +56,5 @@ public class EggrpCommand extends ImageCommand {
 	@Override
 	protected String getDescription() {
 		return "Pictures of the Egg Overlord";
-	}
-
-	@Override
-	public boolean isHidden() {
-		return true;
 	}
 }

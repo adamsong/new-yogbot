@@ -7,11 +7,18 @@ import discord4j.core.object.component.ActionRow;
 import discord4j.core.object.component.MessageComponent;
 import discord4j.core.object.component.TextInput;
 import discord4j.discordjson.json.ComponentData;
-import net.yogstation.yogbot.Yogbot;
+import net.yogstation.yogbot.permissions.PermissionsManager;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-
-public class KickCommand implements IInteractionHandler<UserInteractionEvent>, IModalSubmitHandler {
+@Component
+public class KickCommand implements IUserCommand, IModalSubmitHandler {
+	private final PermissionsManager permissions;
+	
+	public KickCommand(PermissionsManager permissions) {
+		this.permissions = permissions;
+	}
+	
 	@Override
 	public String getName() {
 		return "Kick";
@@ -21,12 +28,12 @@ public class KickCommand implements IInteractionHandler<UserInteractionEvent>, I
 	public Mono<?> handle(UserInteractionEvent event) {
 		if(event.getInteraction().getGuildId().isEmpty())
 			return event.reply().withEphemeral(true).withContent("Must be used in a guild");
-		if(!Yogbot.permissions.hasPermission(event.getInteraction().getMember().orElse(null), "kick"))
+		if(!permissions.hasPermission(event.getInteraction().getMember().orElse(null), "kick"))
 			return event.reply().withEphemeral(true).withContent("You do not have permission to run that command");
 		if(event.getTargetId().equals(event.getInteraction().getUser().getId()))
 			return event.reply().withEphemeral(true).withContent("You cannot kick yourself");
 		return event.getTargetUser().flatMap(user -> user.asMember(event.getInteraction().getGuildId().get()).flatMap(member -> {
-			if(Yogbot.permissions.hasPermission(member, "kick"))
+			if(permissions.hasPermission(member, "kick"))
 				return event.reply().withEphemeral(true).withContent("Cannot kick staff");
 			return event.presentModal()
 				.withCustomId(String.format("%s-%s", getIdPrefix(), event.getTargetId().asString()))

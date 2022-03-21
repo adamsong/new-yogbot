@@ -1,64 +1,30 @@
 package net.yogstation.yogbot.listeners;
 
+import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Member;
-import net.yogstation.yogbot.Yogbot;
 import net.yogstation.yogbot.commands.*;
+import net.yogstation.yogbot.config.DiscordConfig;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class TextCommandListener {
-	private static final List<TextCommand> commands = new ArrayList<>();
+	private final List<TextCommand> commands;
+	private final DiscordConfig config;
 	
-	static {
-		commands.add(new ActivityCommand());
-		commands.add(new AddAOCommand());
-		commands.add(new AddMentorCommand());
-		commands.add(new AshCommand());
-		commands.add(new AdminWhoCommand());
-		commands.add(new BannuCommand());
-		commands.add(new BugCommand());
-		commands.add(new CoderCommand());
-		commands.add(new CorgiCommand());
-		commands.add(new CouncilCommand());
-		commands.add(new DuckCommand());
-		commands.add(new EggrpCommand());
-		commands.add(new EightBallCommand());
-		commands.add(new FoxesCommand());
-		commands.add(new HardyCommand());
-		commands.add(new HelpCommand());
-		commands.add(new InfoCommand());
-		commands.add(new JamieCommand());
-		commands.add(new KMCCommand());
-		commands.add(new KtlwjecCommand());
-		commands.add(new ListAdminsCommand());
-		commands.add(new ListMentorsCommand());
-		commands.add(new LizardCommand());
-		commands.add(new LockerCommand());
-		commands.add(new LoreBanCommand());
-		commands.add(new MHelpCommand());
-		commands.add(new MentorBanCommand());
-		commands.add(new MojaCommand());
-		commands.add(new MyIDCommand());
-		commands.add(new MyNotesCommand());
-		commands.add(new NiclasCommand());
-		commands.add(new NotesCommand());
-		commands.add(new PingCommand());
-		commands.add(new RemoveAOCommand());
-		commands.add(new RemoveMentorCommand());
-		commands.add(new ReviewCommand());
-		commands.add(new SubscribeCommand());
-		commands.add(new TicketCommand());
-		commands.add(new ToggleOOCCommand());
-		commands.add(new UnlinkCommand());
-		commands.add(new UnsubscribeCommand());
-		commands.add(new UserverifyCommand());
+	public TextCommandListener(List<TextCommand> commands, GatewayDiscordClient client, DiscordConfig config) {
+		this.commands = commands;
+		this.config = config;
+		
+		client.on(MessageCreateEvent.class, this::handle).subscribe();
 	}
-
-	public static List<String> getHelpMessages(Member member, boolean hidden) {
+	
+	public List<String> getHelpMessages(Member member, boolean hidden) {
 		List<String> messages = new ArrayList<>();
 		for(TextCommand command : commands) {
 			if(command.isHidden() != hidden) continue;
@@ -69,10 +35,10 @@ public class TextCommandListener {
 		return messages;
 	}
 	
-	public static Mono<?> handle(MessageCreateEvent event) {
+	public Mono<?> handle(MessageCreateEvent event) {
 		return Flux.fromIterable(commands)
 			.filter(command -> event.getMessage().getContent().startsWith(
-					Yogbot.config.discordConfig.commandPrefix +
+					config.commandPrefix +
 					command.getName()
 			))
 			.next()

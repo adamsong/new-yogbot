@@ -1,80 +1,82 @@
 package net.yogstation.yogbot.permissions;
 
 import discord4j.core.object.entity.Member;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@Component
 public class PermissionsManager {
 	private final Map<String, PermissionsNode> nodes = new HashMap<>();
 
 	public PermissionsManager() {
-		addNode(new PermissionsNodeBuilder()
+		addNode(PermissionsNode.builder()
 				.setName("Wiki Staff")
 				.setPerms("wikiban")
 				.build(this));
 
-		addNode(new PermissionsNodeBuilder()
+		addNode(PermissionsNode.builder()
 				.setName("Lore Team")
 				.setPerms("loreban")
 				.build(this));
 
-		addNode(new PermissionsNodeBuilder()
+		addNode(PermissionsNode.builder()
 				.setName("subscriber")
 				.setPerms("unsubscribe")
 				.build(this));
 
-		addNode(new PermissionsNodeBuilder()
+		addNode(PermissionsNode.builder()
 				.setName("YogPost")
 				.setPerms("post")
 				.build(this));
 
-		addNode(new PermissionsNodeBuilder()
+		addNode(PermissionsNode.builder()
 				.setName("mentor")
 				.setPerms("mehlp", "listmentors")
 				.build(this));
 
-		addNode(new PermissionsNodeBuilder()
+		addNode(PermissionsNode.builder()
 				.setName("Head Mentor")
 				.setPerms("addmentor", "removementor", "mentorban")
 				.setParents("mentor")
 				.build(this));
 
-		addNode(new PermissionsNodeBuilder()
+		addNode(PermissionsNode.builder()
 				.setName("maintainer")
 				.setPerms("reboot", "toggleooc")
 				.setParents("mentor")
 				.build(this));
 
-		addNode(new PermissionsNodeBuilder()
+		addNode(PermissionsNode.builder()
 				.setName("retmin")
 				.setPerms("tempban", "ban", "unban", "kick", "ticket", "whitelist", "note", "staffban", "listadmins")
 				.setParents("maintainer")
 				.build(this));
 
-		addNode(new PermissionsNodeBuilder()
+		addNode(PermissionsNode.builder()
 				.setName("staff")
 				.setParents("retmin")
 				.build(this));
 
-		addNode(new PermissionsNodeBuilder()
+		addNode(PermissionsNode.builder()
 				.setName("senior admin")
 				.setPerms("addao", "removeao", "addmentor", "removementor")
 				.setParents("staff")
 				.build(this));
 
-		addNode(new PermissionsNodeBuilder()
+		addNode(PermissionsNode.builder()
 				.setName("head-developer")
 				.setParents("senior admin")
 				.build(this));
 
-		addNode(new PermissionsNodeBuilder()
+		addNode(PermissionsNode.builder()
 				.setName("council")
 				.setPerms("userverify")
 				.setParents("head-developer")
 				.build(this));
 
-		addNode(new PermissionsNodeBuilder()
+		addNode(PermissionsNode.builder()
 				.setName("host")
 				.setParents("council")
 				.build(this));
@@ -106,38 +108,6 @@ public class PermissionsManager {
 			})
 			.block() == Boolean.TRUE; // == Boolean.TRUE prevents NPE
 	}
-}
-
-class PermissionsNodeBuilder {
-	private String name = "";
-	private String[] perms = new String[0];
-	private String[] parents = new String[0];
-
-	public PermissionsNodeBuilder setName(String name) {
-		this.name = name;
-		return this;
-	}
-
-	public PermissionsNodeBuilder setPerms(String... perms) {
-		this.perms = perms;
-		return this;
-	}
-
-	public PermissionsNodeBuilder setParents(String... parents) {
-		this.parents = parents;
-		return this;
-	}
-
-	public PermissionsNode build(PermissionsManager manager) {
-		PermissionsNode node = new PermissionsNode(name);
-		node.addPermissions(perms);
-
-		for(String string : parents) {
-			PermissionsNode parentNode = manager.getNodeFor(string);
-			assert parentNode != null;
-			node.addParents(parentNode);
-		}
-
-		return node;
-	}
+	
+	
 }

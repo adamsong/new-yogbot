@@ -1,7 +1,7 @@
 package net.yogstation.yogbot.util;
 
 import discord4j.common.util.Snowflake;
-import net.yogstation.yogbot.Yogbot;
+import net.yogstation.yogbot.DatabaseManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,11 +14,11 @@ public class ByondLinkUtil {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ByondLinkUtil.class);
 
-	public static Result<Snowflake, String> getMemberID(String ckey) {
+	public static Result<Snowflake, String> getMemberID(String ckey, DatabaseManager database) {
 		try(
-			Connection connection = Yogbot.database.getConnection();
+			Connection connection = database.getConnection();
 			PreparedStatement playerStmt = connection.prepareStatement(String.format(
-				"SELECT discord_id FROM `%s` WHERE `ckey` = ? AND discord_id IS NOT NULL;", Yogbot.database.prefix("player")))
+				"SELECT discord_id FROM `%s` WHERE `ckey` = ? AND discord_id IS NOT NULL;", database.prefix("player")))
 			) {
 			playerStmt.setString(1, ckey);
 			ResultSet playerResults = playerStmt.executeQuery();
@@ -39,10 +39,10 @@ public class ByondLinkUtil {
 		}
 	}
 
-	public static Result<String, String> getCkey(Snowflake snowflake) {
-		try (Connection connection = Yogbot.database.getConnection();
+	public static Result<String, String> getCkey(Snowflake snowflake, DatabaseManager database) {
+		try (Connection connection = database.getConnection();
 			 PreparedStatement ckeyStmt = connection.prepareStatement(String.format(
-				 "SELECT ckey FROM `%s` WHERE `discord_id` = ?", Yogbot.database.prefix("player")))
+				 "SELECT ckey FROM `%s` WHERE `discord_id` = ?", database.prefix("player")))
 		) {
 			ckeyStmt.setLong(1, snowflake.asLong());
 			ResultSet ckeyResults = ckeyStmt.executeQuery();

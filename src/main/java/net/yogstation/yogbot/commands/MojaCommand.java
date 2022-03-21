@@ -1,8 +1,17 @@
 package net.yogstation.yogbot.commands;
 
-import java.util.List;
+import net.yogstation.yogbot.config.DiscordConfig;
+import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.Random;
+
+@Component
 public class MojaCommand extends ImageCommand {
+	public MojaCommand(DiscordConfig discordConfig, Random random) {
+		super(discordConfig, random);
+	}
+	
 	@Override
 	protected List<String> getImages() {
 		return List.of(

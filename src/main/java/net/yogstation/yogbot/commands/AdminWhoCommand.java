@@ -1,27 +1,36 @@
 package net.yogstation.yogbot.commands;
 
+import discord4j.common.util.Snowflake;
 import discord4j.core.event.domain.message.MessageCreateEvent;
-import net.yogstation.yogbot.Yogbot;
+import net.yogstation.yogbot.ByondConnector;
+import net.yogstation.yogbot.config.DiscordChannelsConfig;
+import net.yogstation.yogbot.config.DiscordConfig;
 import net.yogstation.yogbot.util.ChannelUtil;
 import net.yogstation.yogbot.util.Result;
 import reactor.core.publisher.Mono;
 
-import java.nio.channels.Channel;
-
 public class AdminWhoCommand extends TextCommand {
 
+	private final ByondConnector byondConnector;
+	private final DiscordChannelsConfig channelsConfig;
+	
+	public AdminWhoCommand(DiscordConfig discordConfig, ByondConnector byondConnector,
+	                       DiscordChannelsConfig channelsConfig) {
+		super(discordConfig);
+		this.byondConnector = byondConnector;
+		this.channelsConfig = channelsConfig;
+	}
+	
 	@Override
 	protected Mono<?> doCommand(MessageCreateEvent event) {
-		String admins = getAdmins(event);
-		if(admins == null) return reply(event, "There was an error getting the admins");
-		return reply(event, admins);
+		return reply(event, getAdmins(event.getMessage().getChannelId(), byondConnector, channelsConfig));
 	}
 
-	static String getAdmins(MessageCreateEvent event) {
+	static String getAdmins(Snowflake channelID, ByondConnector byondConnector, DiscordChannelsConfig channelsConfig) {
 		var byondMessage = "?adminwho";
-		if(ChannelUtil.isAdminChannel(event.getMessage().getChannelId().asLong()))
+		if(ChannelUtil.isAdminChannel(channelID.asLong(), channelsConfig))
 			byondMessage += "&adminchannel=1";
-		Result<Object, String> result = Yogbot.byondConnector.request(byondMessage);
+		Result<Object, String> result = byondConnector.request(byondMessage);
 		String admins = (String) (result.hasError() ? result.getError() : result.getValue());
 		admins = admins.replaceAll("\0", "");
 		return admins;

@@ -1,6 +1,9 @@
 package net.yogstation.yogbot.config;
 
-public class DatabaseConfig {
+import org.springframework.stereotype.Component;
+
+@Component
+public class DatabaseConfig extends ConfigClass {
 	// Connection Info, default matches the game server's default
 	public String hostname = "localhost";
 	public int port = 3306;
@@ -9,4 +12,8 @@ public class DatabaseConfig {
 	public String password = "password";
 
 	public String prefix = "SS13_";
+	
+	public DatabaseConfig() {
+		loadConfig("database.properties");
+	}
 }

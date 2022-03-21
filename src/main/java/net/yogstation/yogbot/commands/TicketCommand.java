@@ -1,7 +1,10 @@
 package net.yogstation.yogbot.commands;
 
 import discord4j.core.event.domain.message.MessageCreateEvent;
-import net.yogstation.yogbot.Yogbot;
+import net.yogstation.yogbot.DatabaseManager;
+import net.yogstation.yogbot.config.DiscordConfig;
+import net.yogstation.yogbot.permissions.PermissionsManager;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.sql.Connection;
@@ -9,9 +12,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import static net.yogstation.yogbot.Yogbot.database;
-
+@Component
 public class TicketCommand extends PermissionsCommand {
+	private final DatabaseManager database;
+	
+	public TicketCommand(DiscordConfig discordConfig, PermissionsManager permissions, DatabaseManager database) {
+		super(discordConfig, permissions);
+		this.database = database;
+	}
+	
 	@Override
 	protected String getRequiredPermissions() {
 		return "note";
@@ -21,7 +30,7 @@ public class TicketCommand extends PermissionsCommand {
 	protected Mono<?> doCommand(MessageCreateEvent event) {
 		String[] args = event.getMessage().getContent().split(" ");
 		if (args.length < 2) {
-			return reply(event, String.format("Usage is `%sticket <help|get>`", Yogbot.config.discordConfig.commandPrefix));
+			return reply(event, String.format("Usage is `%sticket <help|get>`", discordConfig.commandPrefix));
 		}
 		return switch (args[1]) {
 			case "help" -> ticket_help(event, args);
@@ -34,11 +43,11 @@ public class TicketCommand extends PermissionsCommand {
 		if (args.length < 3) {
 			return reply(event, String.format(
 				"Gets information on a ticket from the database.\n" + "Use `%sticket help <subcommand>` for help on a specific subcommand",
-				Yogbot.config.discordConfig.commandPrefix));
+				discordConfig.commandPrefix));
 		}
 		return args[2].equals("get") ? reply(event, String.format(
 			"Gets either the content of a ticket from a specific round, or the list of tickets from that round\n" + "\tUsage: `%sticket get <round_id> [ticket_id]`",
-			Yogbot.config.discordConfig.commandPrefix)) : reply(event, String.format("Unknown subcommand `%s`", args[1]));
+			discordConfig.commandPrefix)) : reply(event, String.format("Unknown subcommand `%s`", args[1]));
 	}
 	
 	private Mono<?> get_ticket(MessageCreateEvent event, String[] args) {

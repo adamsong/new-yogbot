@@ -5,7 +5,8 @@ import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.PartialMember;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.core.spec.MessageCreateSpec;
-import net.yogstation.yogbot.Yogbot;
+import net.yogstation.yogbot.DatabaseManager;
+import net.yogstation.yogbot.config.DiscordConfig;
 import net.yogstation.yogbot.listeners.IEventHandler;
 import net.yogstation.yogbot.util.ByondLinkUtil;
 import net.yogstation.yogbot.util.Result;
@@ -18,6 +19,13 @@ import java.util.List;
 
 public abstract class TextCommand implements IEventHandler<MessageCreateEvent> {
 	protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
+	
+	protected final DiscordConfig discordConfig;
+	
+	public TextCommand(DiscordConfig discordConfig) {
+		this.discordConfig = discordConfig;
+	}
+	
 	@Override
 	public Mono<?> handle(MessageCreateEvent event) {
 		if(!canFire(event)) return doError(event);
@@ -28,8 +36,7 @@ public abstract class TextCommand implements IEventHandler<MessageCreateEvent> {
 	protected abstract String getDescription();
 
 	public String getHelpText() {
-		assert Yogbot.config.discordConfig != null;
-		return String.format("    `%s%s` - %s", Yogbot.config.discordConfig.commandPrefix, getName(), getDescription());
+		return String.format("    `%s%s` - %s", discordConfig.commandPrefix, getName(), getDescription());
 	}
 
 	public boolean isHidden() {
@@ -96,15 +103,15 @@ public abstract class TextCommand implements IEventHandler<MessageCreateEvent> {
 			return new CommandTarget(null, ckey);
 		}
 		
-		public String populate() {
+		public String populate(DatabaseManager database) {
 			if(snowflake == null) {
-				Result<Snowflake, String> snowflakeResult = ByondLinkUtil.getMemberID(ckey);
+				Result<Snowflake, String> snowflakeResult = ByondLinkUtil.getMemberID(ckey, database);
 				if(snowflakeResult.hasError()) return snowflakeResult.getError();
 				snowflake = snowflakeResult.getValue();
 			}
 			
 			if(ckey == null) {
-				Result<String, String> ckeyResult = ByondLinkUtil.getCkey(snowflake);
+				Result<String, String> ckeyResult = ByondLinkUtil.getCkey(snowflake, database);
 				if(ckeyResult.hasError()) return ckeyResult.getError();
 				ckey = ckeyResult.getValue();
 			}

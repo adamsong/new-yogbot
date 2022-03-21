@@ -1,11 +1,17 @@
 package net.yogstation.yogbot.commands;
 
 import discord4j.core.event.domain.message.MessageCreateEvent;
+import net.yogstation.yogbot.config.DiscordConfig;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+@Component
 public class BugCommand extends TextCommand {
-
-
+	
+	public BugCommand(DiscordConfig discordConfig) {
+		super(discordConfig);
+	}
+	
 	@Override
 	public String getName() {
 		return "bug";

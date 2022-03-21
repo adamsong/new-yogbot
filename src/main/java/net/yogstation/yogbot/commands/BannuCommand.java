@@ -1,23 +1,31 @@
 package net.yogstation.yogbot.commands;
 
 import discord4j.core.event.domain.message.MessageCreateEvent;
-import net.yogstation.yogbot.Yogbot;
+import net.yogstation.yogbot.config.DiscordConfig;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Component
 public class BannuCommand extends TextCommand {
 
 	private static final Pattern argsPattern = Pattern.compile(".\\w+\\s(<@!?\\d+>)\\s?(.*)");
 
+	private final DiscordConfig discordConfig;
+	
+	public BannuCommand(DiscordConfig discordConfig, DiscordConfig discordConfig1) {
+		super(discordConfig);
+		this.discordConfig = discordConfig1;
+	}
+	
 	@Override
 	protected Mono<?> doCommand(MessageCreateEvent event) {
 		Matcher matcher = argsPattern.matcher(event.getMessage().getContent());
 		if(!matcher.matches()) {
-			assert Yogbot.config.discordConfig != null;
-			return reply(event, "Usage is `%sbannu [@UserName] <reason>`", Yogbot.config.discordConfig.commandPrefix);
+			return reply(event, "Usage is `%sbannu [@UserName] <reason>`", discordConfig.commandPrefix);
 		}
 		String who = matcher.group(1);
 		String reason = matcher.group(2);

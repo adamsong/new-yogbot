@@ -1,16 +1,22 @@
 package net.yogstation.yogbot.commands;
 
 import discord4j.core.event.domain.message.MessageCreateEvent;
-import discord4j.core.object.entity.PartialMember;
-import net.yogstation.yogbot.Yogbot;
-import net.yogstation.yogbot.util.ByondLinkUtil;
+import net.yogstation.yogbot.DatabaseManager;
+import net.yogstation.yogbot.config.DiscordConfig;
+import net.yogstation.yogbot.permissions.PermissionsManager;
 import net.yogstation.yogbot.util.MonoCollector;
-import net.yogstation.yogbot.util.Result;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
 
+@Component
 public class NotesCommand extends GetNotesCommand {
+	
+	public NotesCommand(DiscordConfig discordConfig, PermissionsManager permissions, DatabaseManager database) {
+		super(discordConfig, permissions, database);
+	}
+	
 	@Override
 	protected String getRequiredPermissions() {
 		return "note";
@@ -21,10 +27,10 @@ public class NotesCommand extends GetNotesCommand {
 		CommandTarget target = getTarget(event);
 		List<String> notes = List.of("An unknown error has occurred");
 		if(target == null)
-			notes = List.of(String.format("Usage is `%snotes <ckey or @Username>`", Yogbot.config.discordConfig.commandPrefix));
+			notes = List.of(String.format("Usage is `%snotes <ckey or @Username>`", discordConfig.commandPrefix));
 		else {
 			if(target.getCkey() == null) {
-				String populateResult = target.populate();
+				String populateResult = target.populate(database);
 				if(populateResult != null) notes = List.of(populateResult);
 			}
 			if(target.getCkey() != null) {

@@ -1,8 +1,17 @@
 package net.yogstation.yogbot.commands;
 
-import java.util.List;
+import net.yogstation.yogbot.config.DiscordConfig;
+import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.Random;
+
+@Component
 public class LizardCommand extends ImageCommand {
+	public LizardCommand(DiscordConfig discordConfig, Random random) {
+		super(discordConfig, random);
+	}
+	
 	@Override
 	protected List<String> getImages() {
 		return List.of(
@@ -34,8 +43,4 @@ public class LizardCommand extends ImageCommand {
 		return "lizard";
 	}
 
-	@Override
-	public boolean isHidden() {
-		return true;
-	}
 }

@@ -1,13 +1,21 @@
 package net.yogstation.yogbot.commands;
 
 import discord4j.core.event.domain.message.MessageCreateEvent;
-import net.yogstation.yogbot.Yogbot;
+import net.yogstation.yogbot.config.DiscordConfig;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.util.Random;
 
+@Component
 public class EightBallCommand extends TextCommand {
-
+	private final Random random;
+	
+	public EightBallCommand(DiscordConfig discordConfig, Random random) {
+		super(discordConfig);
+		this.random = random;
+	}
+	
 	@Override
 	public String getName() {
 		return "8ball";
@@ -37,7 +45,7 @@ public class EightBallCommand extends TextCommand {
 			"Outlook not so good.",
 			"Very doubtful."
 		};
-		return reply(event, responses[Yogbot.random.nextInt(responses.length)]);
+		return reply(event, responses[random.nextInt(responses.length)]);
 	}
 
 	@Override

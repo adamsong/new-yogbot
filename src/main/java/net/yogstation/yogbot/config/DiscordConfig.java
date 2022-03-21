@@ -1,12 +1,25 @@
 package net.yogstation.yogbot.config;
 
-public class DiscordConfig {
+import org.springframework.stereotype.Component;
+
+@Component
+public class DiscordConfig extends ConfigClass {
+	public DiscordConfig() {
+		loadConfig("discord.properties");
+	}
+	
 	public String botToken = "No token here";
 
 	public String commandPrefix = "!";
 	public String serverName = "Yogstation 13";
 
 	public boolean useLocalCommands = false;
+	
+	public String oauthAuthorizeUrl = "https://bab.yogstation.net/auth/authorize";
+	public String oauthTokenUrl = "https://bab.yogstation.net/auth/token";
+	public String oauthUserInfoUrl = "https://bab.yogstation.net/auth/userinfo";
+	public String oauthClientId = "yogstation_yogbot";
+	public String oauthClientSecret = "lolno";
 
 	public long mainGuildID = 134720091576205312L;
 	public long aoRole = 471634210923216906L;

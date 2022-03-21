@@ -1,8 +1,17 @@
 package net.yogstation.yogbot.commands;
 
-import java.util.List;
+import net.yogstation.yogbot.config.DiscordConfig;
+import org.springframework.stereotype.Component;
 
-public class JamieCommand extends ImageCommand{
+import java.util.List;
+import java.util.Random;
+
+@Component
+public class JamieCommand extends ImageCommand {
+	public JamieCommand(DiscordConfig discordConfig, Random random) {
+		super(discordConfig, random);
+	}
+	
 	@Override
 	protected List<String> getImages() {
 		return List.of(
@@ -76,8 +85,4 @@ public class JamieCommand extends ImageCommand{
 		return "jamie";
 	}
 
-	@Override
-	public boolean isHidden() {
-		return true;
-	}
 }

@@ -1,21 +1,34 @@
 package net.yogstation.yogbot.commands;
 
 import discord4j.core.event.domain.message.MessageCreateEvent;
-import net.yogstation.yogbot.Yogbot;
+import net.yogstation.yogbot.DatabaseManager;
+import net.yogstation.yogbot.config.DiscordConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
+@Component
 public class ListAdminsCommand extends TextCommand {
 	private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
+	private final DatabaseManager database;
+	
+	public ListAdminsCommand(DiscordConfig discordConfig, DatabaseManager database) {
+		super(discordConfig);
+		this.database = database;
+	}
+	
 	@Override
 	protected Mono<?> doCommand(MessageCreateEvent event) {
-		try (Connection connection = Yogbot.database.getConnection();
+		try (Connection connection = database.getConnection();
 			 PreparedStatement stmt = connection.prepareStatement(
-				 String.format("SELECT ckey,`rank` FROM `%s`", Yogbot.database.prefix("admin"))
+				 String.format("SELECT ckey,`rank` FROM `%s`", database.prefix("admin"))
 			 )
 		) {
 			ResultSet results = stmt.executeQuery();

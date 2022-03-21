@@ -1,31 +1,25 @@
 package net.yogstation.yogbot.listeners;
 
-import discord4j.core.event.domain.interaction.ChatInputInteractionEvent;
+import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.interaction.UserInteractionEvent;
-import net.yogstation.yogbot.commands.ActivityCommand;
-import net.yogstation.yogbot.commands.EightBallCommand;
 import net.yogstation.yogbot.interactions.*;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class UserCommandListener {
-	private static final List<IInteractionHandler<UserInteractionEvent>> commands = new ArrayList<>();
-	
-	static {
-		commands.add(new SoftbanCommand());
-		commands.add(new KickCommand());
-		commands.add(new StaffBanCommand());
-		commands.add(new UnbanCommand());
-	}
+	private final List<IUserCommand> commands;
 
-	public static List<String> getCommandURIs() {
-		return commands.stream().map(IInteractionHandler::getURI).toList();
+	public UserCommandListener(List<IUserCommand> commands, GatewayDiscordClient client) {
+		this.commands = commands;
+		
+		client.on(UserInteractionEvent.class, this::handle).subscribe();
 	}
 	
-	public static Mono<?> handle(UserInteractionEvent event) {
+	public Mono<?> handle(UserInteractionEvent event) {
 		return Flux.fromIterable(commands)
 			.filter(command -> command.getName().equals(event.getCommandName()))
 			.next()

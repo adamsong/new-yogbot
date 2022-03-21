@@ -1,9 +1,18 @@
 package net.yogstation.yogbot.commands;
 
+import net.yogstation.yogbot.config.DiscordConfig;
+import org.springframework.stereotype.Component;
+
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
+@Component
 public class AshCommand extends ImageCommand {
+	public AshCommand(DiscordConfig discordConfig, Random random) {
+		super(discordConfig, random);
+	}
+	
 	@Override
 	protected List<String> getImages() {
 		return Arrays.asList(
@@ -26,9 +35,5 @@ public class AshCommand extends ImageCommand {
 	protected String getDescription() {
 		return "Pictures of our friendly neighbourhood onion";
 	}
-
-	@Override
-	public boolean isHidden() {
-		return true;
-	}
+	
 }

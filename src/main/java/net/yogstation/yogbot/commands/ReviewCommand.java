@@ -5,10 +5,14 @@ import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.channel.MessageChannel;
 import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.core.spec.MessageEditSpec;
-import net.yogstation.yogbot.Yogbot;
+import net.yogstation.yogbot.DatabaseManager;
+import net.yogstation.yogbot.config.DiscordChannelsConfig;
+import net.yogstation.yogbot.config.DiscordConfig;
+import net.yogstation.yogbot.permissions.PermissionsManager;
 import net.yogstation.yogbot.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.sql.Connection;
@@ -19,7 +23,19 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
-public class ReviewCommand extends PermissionsCommand{
+@Component
+public class ReviewCommand extends PermissionsCommand {
+	
+	private final DiscordChannelsConfig channelsConfig;
+	private final DatabaseManager database;
+	
+	public ReviewCommand(DiscordConfig discordConfig, PermissionsManager permissions,
+	                     DiscordChannelsConfig channelsConfig, DatabaseManager database) {
+		super(discordConfig, permissions);
+		this.channelsConfig = channelsConfig;
+		this.database = database;
+	}
+	
 	@Override
 	protected String getRequiredPermissions() {
 		return "note";
@@ -28,13 +44,13 @@ public class ReviewCommand extends PermissionsCommand{
 	@Override
 	protected Mono<?> doCommand(MessageCreateEvent event) {
 		String[] args = event.getMessage().getContent().split(" ");
-		if(args.length < 2) return reply(event, "Usage is: `%sreview <ckey> [strict]`", Yogbot.config.discordConfig.commandPrefix);
+		if(args.length < 2) return reply(event, "Usage is: `%sreview <ckey> [strict]`", discordConfig.commandPrefix);
 		String ckey = StringUtils.ckey_ize(args[1]);
-		boolean strict = (event.getMessage().getChannelId().asLong() == Yogbot.config.channelsConfig.channelAdmin)
+		boolean strict = (event.getMessage().getChannelId().asLong() == channelsConfig.channelAdmin)
 			|| (args.length >= 3 && args[2].equalsIgnoreCase("strict"));
 
 		return event.getMessage().getChannel().flatMap(messageChannel -> {
-			new Thread(new ReviewWorker(ckey, messageChannel, strict)).start();
+			new ReviewWorker(ckey, messageChannel, strict, database).start();
 			return Mono.empty();
 		});
 	}
@@ -49,25 +65,28 @@ public class ReviewCommand extends PermissionsCommand{
 		return "review";
 	}
 	
-	static class ReviewWorker implements Runnable {
+	static class ReviewWorker extends Thread {
 		private static final Logger LOGGER = LoggerFactory.getLogger(ReviewWorker.class);
 		
 		private final String initialCkey;
 		private final MessageChannel channel;
+		public final LocalDateTime startTime;
+		private final boolean strict;
+		private final DatabaseManager database;
 		
 		private final List<String> ckeysQueue = new ArrayList<>();
 		private final Map<String, String> ckeysChecked = new LinkedHashMap<>();
 		public final ArrayList<Message> messages = new ArrayList<>();
 		
-		public final LocalDateTime startTime;
-		private final boolean strict;
 		private int update_idx = 0;
 		
-		public ReviewWorker(String initialCkey, MessageChannel channel, boolean strict) {
+		public ReviewWorker(String initialCkey, MessageChannel channel, boolean strict,
+		                    DatabaseManager database) {
 			this.initialCkey = initialCkey;
 			this.channel = channel;
+			this.startTime = LocalDateTime.now();
 			this.strict = strict;
-			startTime = LocalDateTime.now();
+			this.database = database;
 		}
 		
 		@Override
@@ -85,8 +104,8 @@ public class ReviewCommand extends PermissionsCommand{
 				Set<String> thisCids = new HashSet<>();
 				Set<String> thisIps = new HashSet<>();
 				Map<String, RelatedInfo> relatedKeys = new HashMap<>();
-				String tableName = Yogbot.database.prefix("connection_log");
-				try(Connection connection = Yogbot.database.getConnection();
+				String tableName = database.prefix("connection_log");
+				try(Connection connection = database.getConnection();
 				PreparedStatement connectionsStmt = connection.prepareStatement(String.format("SELECT computerid, ip FROM %s WHERE ckey = ?;", tableName));
 				PreparedStatement relatedStmt = connection.prepareStatement(String.format("SELECT ckey,ip,computerid FROM `%s` WHERE computerid IN (SELECT computerid FROM `%s` WHERE ckey = ?) OR ip IN (SELECT ip FROM `%s` WHERE ckey = ?)", tableName, tableName, tableName))
 				) {
@@ -149,10 +168,10 @@ public class ReviewCommand extends PermissionsCommand{
 		}
 		
 		private void checkBannu(String victim) {
-			try(Connection connection = Yogbot.database.getConnection();
+			try(Connection connection = database.getConnection();
 			    PreparedStatement bannuStmt = connection.prepareStatement(String.format(
 				    "SELECT 1 FROM `%s` WHERE ckey = ? AND role IN ('Server') AND unbanned_datetime IS NULL AND (expiration_time IS NULL OR expiration_time > NOW())",
-				    Yogbot.database.prefix("ban")
+				    database.prefix("ban")
 			    ))
 			) {
 				bannuStmt.setString(1, victim);

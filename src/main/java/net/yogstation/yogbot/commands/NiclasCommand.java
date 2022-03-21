@@ -1,14 +1,23 @@
 package net.yogstation.yogbot.commands;
 
-import java.util.List;
+import net.yogstation.yogbot.config.DiscordConfig;
+import org.springframework.stereotype.Component;
 
+import java.util.List;
+import java.util.Random;
+
+@Component
 public class NiclasCommand extends ImageCommand {
+	public NiclasCommand(DiscordConfig discordConfig, Random random) {
+		super(discordConfig, random);
+	}
+	
 	@Override
 	protected List<String> getImages() {
 		return List.of(
-			"http://i.imgur.com/RA0v3cW.jpg",
-			"http://i.imgur.com/ugbj0m1.png",
-			"http://i.imgur.com/pmgSHjz.png"
+			"https://i.imgur.com/RA0v3cW.jpg",
+			"https://i.imgur.com/ugbj0m1.png",
+			"https://i.imgur.com/pmgSHjz.png"
 		);
 	}
 
@@ -29,6 +38,6 @@ public class NiclasCommand extends ImageCommand {
 
 	@Override
 	public boolean isHidden() {
-		return true;
+		return super.isHidden();
 	}
 }

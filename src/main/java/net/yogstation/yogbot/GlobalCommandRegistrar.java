@@ -4,8 +4,14 @@ import discord4j.common.JacksonResources;
 import discord4j.discordjson.json.ApplicationCommandRequest;
 import discord4j.rest.RestClient;
 import discord4j.rest.service.ApplicationService;
+import net.yogstation.yogbot.config.DiscordConfig;
+import net.yogstation.yogbot.interactions.IInteractionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -15,27 +21,21 @@ import java.util.stream.Collectors;
 /**
  * Handle the management of discord commands from JSON files
  * Modified to properly handle being packaged into a jar file
- * Original found in the Discord4J examples https://github.com/Discord4J/example-projects/blob/master/gradle-simple-bot/src/main/java/com/novamaday/d4j/gradle/simplebot/GlobalCommandRegistrar.java
+ * Original found in the Discord4J examples https://github.com/Discord4J/example-projects/blob/master/gradle-spring-bot/src/main/java/com/novamaday/d4j/gradle/springbot/GlobalCommandRegistrar.java
  */
-public class GlobalCommandRegistrar {
+@Component
+public class GlobalCommandRegistrar implements ApplicationRunner {
 	private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 	
 	private final RestClient restClient;
-
-	private final List<String> commandsJson = new ArrayList<>();
-
-	public GlobalCommandRegistrar(RestClient restClient) {
-		this.restClient = restClient;
-	}
+	private final List<IInteractionHandler> interactionHandlers;
+	private final DiscordConfig config;
 	
-	protected void addURIs(List<String> uris) throws IOException {
-		//The name of the folder the commands json is in, inside our resources folder
-		final String commandsFolderName = "commands/";
-		
-		for (String uri : uris) {
-			String resourceFileAsString = getResourceFileAsString(commandsFolderName + uri);
-			commandsJson.add(resourceFileAsString);
-		}
+	public GlobalCommandRegistrar(RestClient restClient, List<IInteractionHandler> interactionHandlers,
+	                              DiscordConfig config) {
+		this.restClient = restClient;
+		this.interactionHandlers = interactionHandlers;
+		this.config = config;
 	}
 	
 	/* The two below methods are boilerplate that can be completely removed when using Spring Boot */
@@ -47,9 +47,7 @@ public class GlobalCommandRegistrar {
 	 * @return The contents of the file as a String, otherwise throws an exception
 	 */
 	private static String getResourceFileAsString(String fileName) throws IOException {
-		ClassLoader classLoader = ClassLoader.getSystemClassLoader();
-		try (InputStream resourceAsStream = classLoader.getResourceAsStream(fileName)) {
-			if (resourceAsStream == null) return null;
+		try (InputStream resourceAsStream = new ClassPathResource(fileName).getInputStream()) {
 			try (InputStreamReader inputStreamReader = new InputStreamReader(resourceAsStream);
 			     BufferedReader reader = new BufferedReader(inputStreamReader)) {
 				return reader.lines().collect(Collectors.joining(System.lineSeparator()));
@@ -58,7 +56,21 @@ public class GlobalCommandRegistrar {
 	}
 	
 	//Since this will only run once on startup, blocking is okay.
-	protected void registerCommands() throws IOException {
+	@Override
+	public void run(ApplicationArguments args) throws IOException {
+		List<String> commandsJson = new ArrayList<>();
+		//The name of the folder the commands json is in, inside our resources folder
+		final String commandsFolderName = "commands/";
+		
+		for (IInteractionHandler interactionHandler : interactionHandlers) {
+			String resourceFileAsString = getResourceFileAsString(commandsFolderName + interactionHandler.getURI());
+			if(resourceFileAsString == null) {
+				LOGGER.error("Failed to load command resource {}", interactionHandler.getURI());
+				continue;
+			}
+			commandsJson.add(resourceFileAsString);
+		}
+		
 		//Create an ObjectMapper that supports Discord4J classes
 		final JacksonResources d4jMapper = JacksonResources.create();
 		
@@ -78,10 +90,10 @@ public class GlobalCommandRegistrar {
 			
 			commands.add(request); //Add to our array list
 		}
-
-		if(Yogbot.config.discordConfig.useLocalCommands) {
+		
+		if(config.useLocalCommands) {
 			LOGGER.info("Loading guild commands");
-			applicationService.bulkOverwriteGuildApplicationCommand(applicationId, Yogbot.config.discordConfig.mainGuildID, commands)
+			applicationService.bulkOverwriteGuildApplicationCommand(applicationId, config.mainGuildID, commands)
 					.doOnNext(ignore -> LOGGER.debug("Successfully registered Global Commands"))
 					.doOnError(e -> LOGGER.error("Failed to register global commands", e))
 					.subscribe();

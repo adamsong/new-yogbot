@@ -1,6 +1,9 @@
 package net.yogstation.yogbot.config;
 
-public class DiscordChannelsConfig {
+import org.springframework.stereotype.Component;
+
+@Component
+public class DiscordChannelsConfig extends ConfigClass {
 	public long channelAnnouncements = 313765200849403915L;
 	public long channelCouncilVotes = 439539272320679948L;
 	public long channelImportantAdmin = 134722058688004096L;
@@ -36,4 +39,8 @@ public class DiscordChannelsConfig {
 	public long channelMentorApplications = 665785215985254420L;
 	public long channelGithubSpam = 701120514038693938L;
 	public long channelBugReports = 773277250090434640L;
+	
+	public DiscordChannelsConfig() {
+		loadConfig("discord_channels.properties");
+	}
 }
