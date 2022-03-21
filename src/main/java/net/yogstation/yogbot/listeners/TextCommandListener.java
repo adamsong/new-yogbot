@@ -55,6 +55,7 @@ public class TextCommandListener {
 		commands.add(new ToggleOOCCommand());
 		commands.add(new UnlinkCommand());
 		commands.add(new UnsubscribeCommand());
+		commands.add(new UserverifyCommand());
 	}
 
 	public static List<String> getHelpMessages(Member member, boolean hidden) {
