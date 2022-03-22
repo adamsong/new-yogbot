@@ -10,6 +10,7 @@ public class ByondConfig extends ConfigClass {
 	}
 	
 	public String serverKey = "no key for you :(";
+	public String serverWebhookKey = "webkey";
 
 	public String serverAddress = "158.69.120.60";
 	public int serverPort = 4133;

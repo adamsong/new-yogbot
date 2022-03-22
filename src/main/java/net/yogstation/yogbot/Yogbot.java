@@ -1,5 +1,6 @@
 package net.yogstation.yogbot;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import discord4j.core.DiscordClientBuilder;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.lifecycle.ReadyEvent;
@@ -10,8 +11,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.web.filter.CommonsRequestLoggingFilter;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.util.Random;
@@ -44,5 +48,15 @@ public class Yogbot {
 	@Bean
 	public Random getRandom() {
 		return new Random();
+	}
+	
+	@Bean
+	public WebClient getWebClient() {
+		return WebClient.create();
+	}
+	
+	@Bean
+	public ObjectMapper getMapper() {
+		return new ObjectMapper();
 	}
 }

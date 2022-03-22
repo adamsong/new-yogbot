@@ -24,6 +24,8 @@ public class DiscordConfig extends ConfigClass {
 	public String oauthClientId = "yogstation_yogbot";
 	public String oauthClientSecret = "lolno";
 	
+	public String asayWebhookUrl = "";
+	
 	public long mainGuildID = 134720091576205312L;
 	public long aoRole = 471634210923216906L;
 	public long mentorRole = 505280515322937355L;

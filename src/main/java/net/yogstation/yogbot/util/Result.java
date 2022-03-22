@@ -28,4 +28,8 @@ public class Result<T, E> {
 	public E getError() {
 		return error;
 	}
+	
+	public boolean hasValue() {
+		return value != null;
+	}
 }

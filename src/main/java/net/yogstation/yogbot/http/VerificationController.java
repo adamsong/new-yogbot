@@ -15,6 +15,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
@@ -43,16 +44,18 @@ public class VerificationController {
 	private static final String completeTpl = "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, shrink-to-fit=no\"><title>Yogstation Account Linking</title><link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css\"></head><body><header class=\"d-flex justify-content-center align-items-center\" style=\"height: 3rem;background: var(--bs-blue);\"><h1 style=\"color: rgb(255,255,255);\">Yogstation Account Linking</h1></header><div class=\"container\" style=\"margin-top: 2rem;\"><div class=\"card\"><div class=\"card-body d-flex flex-column align-items-center\"><h4 class=\"card-title\">Your account is now linked!</h4></div></div></div><script src=\"https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js\"></script></body></html>";
 	private static final Logger LOGGER = LoggerFactory.getLogger(VerificationController.class);
 	public final Map<String, AuthIdentity> oauthState = new HashMap<>();
-	private final WebClient webClient = WebClient.create();
-	private final ObjectMapper mapper = new ObjectMapper();
+	private final WebClient webClient;
+	private final ObjectMapper mapper;
 	private final DiscordConfig discordConfig;
 	private final HttpConfig httpConfig;
 	private final DatabaseManager database;
 	private final GatewayDiscordClient client;
 	private final SecureRandom random = new SecureRandom();
 	
-	public VerificationController(DiscordConfig discordConfig, HttpConfig httpConfig, DatabaseManager database,
+	public VerificationController(WebClient webClient, ObjectMapper mapper, DiscordConfig discordConfig, HttpConfig httpConfig, DatabaseManager database,
 	                              GatewayDiscordClient client) {
+		this.webClient = webClient;
+		this.mapper = mapper;
 		this.discordConfig = discordConfig;
 		this.httpConfig = httpConfig;
 		this.database = database;

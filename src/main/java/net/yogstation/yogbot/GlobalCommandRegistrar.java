@@ -5,7 +5,7 @@ import discord4j.discordjson.json.ApplicationCommandRequest;
 import discord4j.rest.RestClient;
 import discord4j.rest.service.ApplicationService;
 import net.yogstation.yogbot.config.DiscordConfig;
-import net.yogstation.yogbot.interactions.IInteractionHandler;
+import net.yogstation.yogbot.listeners.interactions.IInteractionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationArguments;

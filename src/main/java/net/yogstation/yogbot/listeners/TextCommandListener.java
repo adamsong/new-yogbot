@@ -3,7 +3,7 @@ package net.yogstation.yogbot.listeners;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.Member;
-import net.yogstation.yogbot.commands.*;
+import net.yogstation.yogbot.listeners.commands.*;
 import net.yogstation.yogbot.config.DiscordConfig;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
