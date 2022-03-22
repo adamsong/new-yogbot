@@ -23,4 +23,5 @@ dependencies {
     implementation 'io.netty:netty-resolver-dns-native-macos:4.1.75.Final:osx-aarch_64'
     implementation 'mysql:mysql-connector-java:8.0.28'
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation 'org.apache.commons:commons-text:1.8'
 }

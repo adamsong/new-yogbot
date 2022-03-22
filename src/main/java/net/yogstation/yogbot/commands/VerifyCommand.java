@@ -5,25 +5,25 @@ import discord4j.core.event.domain.message.MessageCreateEvent;
 import discord4j.core.object.entity.User;
 import net.yogstation.yogbot.config.DiscordConfig;
 import net.yogstation.yogbot.config.HttpConfig;
+import net.yogstation.yogbot.http.VerificationController;
 import net.yogstation.yogbot.util.StringUtils;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.security.SecureRandom;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 @Component
 public class VerifyCommand extends TextCommand {
 	private final SecureRandom random = new SecureRandom();
-	private final Map<String, AuthIdentity> oauthState = new HashMap<>();
 	
+	private final VerificationController verificationController;
 	private final HttpConfig httpConfig;
 	
-	public VerifyCommand(DiscordConfig discordConfig, HttpConfig httpConfig) {
+	public VerifyCommand(DiscordConfig discordConfig, VerificationController verificationController, HttpConfig httpConfig) {
 		super(discordConfig);
+		this.verificationController = verificationController;
 		this.httpConfig = httpConfig;
 	}
 	
@@ -40,7 +40,7 @@ public class VerifyCommand extends TextCommand {
 		
 		Optional<User> author = event.getMessage().getAuthor();
 		if(author.isEmpty()) return Mono.empty();
-		oauthState.put(state, new AuthIdentity(ckey, author.get().getId(), author.get().getAvatarUrl(), author.get().getTag()));
+		verificationController.oauthState.put(state, new VerificationController.AuthIdentity(ckey, author.get().getId(), author.get().getAvatarUrl(), author.get().getTag()));
 		
 		return reply(event, "Click the following link to complete the linking process: %sapi/verify?state=%s", httpConfig.publicPath, state);
 	}
@@ -54,6 +54,4 @@ public class VerifyCommand extends TextCommand {
 	public String getName() {
 		return "verify";
 	}
-	
-	record AuthIdentity(String ckey, Snowflake snowflake, String avatar, String tag) {}
 }

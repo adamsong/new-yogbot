@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class DiscordConfig extends ConfigClass {
+	
 	public DiscordConfig() {
 		loadConfig("discord.properties");
 	}
@@ -28,6 +29,7 @@ public class DiscordConfig extends ConfigClass {
 	public long subscriberRole = 213375106888499200L;
 	
 	public long manualVerifyRole = 768196461313523727L;
+	public long byondVerificationRole = 762005208326733845L;
 
 	// Punishment Roles
 	public long softBanRole = 302093934551629827L;
