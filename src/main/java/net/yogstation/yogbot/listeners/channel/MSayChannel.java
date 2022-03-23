@@ -14,38 +14,32 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
 @Component
-public class ASayChannel extends AbstractChannel {
+public class MSayChannel extends AbstractChannel {
 	private final ByondConnector byondConnector;
 	private final Logger LOGGER = LoggerFactory.getLogger(getClass());
 	
-	public ASayChannel(DiscordChannelsConfig channelsConfig, ByondConnector byondConnector) {
+	public MSayChannel(DiscordChannelsConfig channelsConfig, ByondConnector byondConnector) {
 		super(channelsConfig);
 		this.byondConnector = byondConnector;
 	}
 	
 	@Override
 	public Snowflake getChannel() {
-		return Snowflake.of(channelsConfig.channelAsay);
+		return Snowflake.of(channelsConfig.channelMsay);
 	}
 	
 	@Override
 	public Mono<?> handle(MessageCreateEvent event) {
 		if(event.getMessage().getAuthor().isEmpty()) return Mono.empty();
-		StringBuilder messageBuilder = new StringBuilder(StringEscapeUtils.escapeHtml4(event.getMessage().getContent()));
-		event.getMessage().getAttachments().forEach(attachment -> {
-			LOGGER.info("Attachment {} found", attachment.getFilename());
-			if(attachment.getFilename().endsWith(".jpg") || attachment.getFilename().endsWith(".png")) {
-				messageBuilder.append("<br><img src=\"").append(attachment.getUrl()).append("\" alt=\"Image\">");
-			}
-		});
-		String adminName;
+		String message = StringEscapeUtils.escapeHtml4(event.getMessage().getContent());
+		String mentorName;
 		if(event.getMember().isPresent()) {
-			adminName = event.getMember().get().getDisplayName();
+			mentorName = event.getMember().get().getDisplayName();
 		} else {
-			adminName = event.getMessage().getAuthor().get().getUsername();
+			mentorName = event.getMessage().getAuthor().get().getUsername();
 		}
 		
-		byondConnector.request(String.format("?asay=%s&admin=%s", URLEncoder.encode(messageBuilder.toString(), StandardCharsets.UTF_8), URLEncoder.encode(adminName, StandardCharsets.UTF_8)));
+		byondConnector.request(String.format("?msay=%s&admin=%s", URLEncoder.encode(message, StandardCharsets.UTF_8), URLEncoder.encode(mentorName, StandardCharsets.UTF_8)));
 		return Mono.empty();
 	}
 }

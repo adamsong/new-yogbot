@@ -5,16 +5,16 @@ import discord4j.core.DiscordClientBuilder;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.lifecycle.ReadyEvent;
 import discord4j.core.object.entity.User;
+import discord4j.core.object.presence.ClientActivity;
+import discord4j.core.object.presence.ClientPresence;
 import discord4j.rest.RestClient;
 import net.yogstation.yogbot.config.DiscordConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.web.filter.CommonsRequestLoggingFilter;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -31,7 +31,8 @@ public class Yogbot {
 	
 	@Bean
 	public GatewayDiscordClient getGatewayDiscordClient(DiscordConfig config) {
-		GatewayDiscordClient client = DiscordClientBuilder.create(config.botToken).build().login().block();
+		GatewayDiscordClient client = DiscordClientBuilder.create(config.botToken).build().gateway().setInitialPresence(ignore -> ClientPresence.online(
+			ClientActivity.playing("I AM A GOD"))).login().block();
 		if (client == null) return null;
 		client.on(ReadyEvent.class, event -> Mono.fromRunnable(() -> {
 			final User self = event.getSelf();

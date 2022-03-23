@@ -25,6 +25,7 @@ public class DiscordConfig extends ConfigClass {
 	public String oauthClientSecret = "lolno";
 	
 	public String asayWebhookUrl = "";
+	public String msayWebhookUrl = "";
 	
 	public long mainGuildID = 134720091576205312L;
 	public long aoRole = 471634210923216906L;
