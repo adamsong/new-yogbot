@@ -4,6 +4,7 @@ import discord4j.core.event.domain.message.MessageCreateEvent
 import net.yogstation.yogbot.ByondConnector
 import net.yogstation.yogbot.config.DiscordConfig
 import net.yogstation.yogbot.permissions.PermissionsManager
+import net.yogstation.yogbot.util.DiscordUtil
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 import java.net.URLEncoder
@@ -25,7 +26,7 @@ class MHelpCommand(
 
 	override fun doCommand(event: MessageCreateEvent): Mono<*> {
 		val matcher = argsPattern.matcher(event.message.content)
-		if (!matcher.matches()) return reply(event, "Usage is `${discordConfig.commandPrefix}mhelp <ckey> <message>")
+		if (!matcher.matches()) return DiscordUtil.reply(event, "Usage is `${discordConfig.commandPrefix}mhelp <ckey> <message>")
 		val builder = StringBuilder("?mhelp=1")
 		builder.append("&msg=").append(URLEncoder.encode(matcher.group(2), StandardCharsets.UTF_8))
 		builder.append("&admin=")
@@ -44,9 +45,9 @@ class MHelpCommand(
 		}
 		builder.append("&whom=").append(URLEncoder.encode(matcher.group(1), StandardCharsets.UTF_8))
 		val result = byondConnector.request(builder.toString())
-		if (result.hasError()) return reply(event, result.error ?: "Unknown Error")
+		if (result.hasError()) return DiscordUtil.reply(event, result.error ?: "Unknown Error")
 		return if (result.value as Float == 0f) {
-			reply(event, "Error: Mentor-PM: Client ${matcher.group(1)} not found.")
+			DiscordUtil.reply(event, "Error: Mentor-PM: Client ${matcher.group(1)} not found.")
 		} else Mono.empty<Any>()
 	}
 }

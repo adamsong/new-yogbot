@@ -2,6 +2,7 @@ package net.yogstation.yogbot.listeners.commands
 
 import net.yogstation.yogbot.config.DiscordConfig
 import discord4j.core.event.domain.message.MessageCreateEvent
+import net.yogstation.yogbot.util.DiscordUtil
 import reactor.core.publisher.Mono
 import org.springframework.stereotype.Component
 import java.util.regex.Pattern
@@ -18,7 +19,7 @@ class BannuCommand(discordConfig: DiscordConfig) :
 	override fun doCommand(event: MessageCreateEvent): Mono<*> {
 		val matcher = argsPattern.matcher(event.message.content)
 		if (!matcher.matches()) {
-			return reply(event, "Usage is `${discordConfig.commandPrefix}bannu [@UserName] <reason>`")
+			return DiscordUtil.reply(event, "Usage is `${discordConfig.commandPrefix}bannu [@UserName] <reason>`")
 		}
 		val who = matcher.group(1)
 		var reason = matcher.group(2)
@@ -27,6 +28,6 @@ class BannuCommand(discordConfig: DiscordConfig) :
 		} else {
 			"\"\"\"\"\"${reason.uppercase()}\"\"\"\"\""
 		}
-		return reply(event, "$who HAS BEEN BANED 4 $reason")
+		return DiscordUtil.reply(event, "$who HAS BEEN BANED 4 $reason")
 	}
 }

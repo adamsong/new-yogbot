@@ -6,6 +6,7 @@ import discord4j.core.`object`.entity.User
 import discord4j.core.event.domain.message.MessageCreateEvent
 import net.yogstation.yogbot.config.DiscordConfig
 import net.yogstation.yogbot.permissions.PermissionsManager
+import net.yogstation.yogbot.util.DiscordUtil
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 import java.util.*
@@ -18,7 +19,7 @@ class UserverifyCommand(discordConfig: DiscordConfig, permissions: PermissionsMa
 
 	override fun doCommand(event: MessageCreateEvent): Mono<*> {
 		val mentions: List<PartialMember> = event.message.memberMentions
-		if (mentions.isEmpty()) return reply(
+		if (mentions.isEmpty()) return DiscordUtil.reply(
 			event,
 			"Usage: `${discordConfig.commandPrefix}userverify <@Username>`"
 		)
@@ -31,11 +32,11 @@ class UserverifyCommand(discordConfig: DiscordConfig, permissions: PermissionsMa
 			verifyRole,
 			"Manually unverified by $user"
 		)
-			.and(reply(event, "User unverified")) else target.addRole(
+			.and(DiscordUtil.reply(event, "User unverified")) else target.addRole(
 			verifyRole,
 			"Manually verified by $user"
 		)
-			.and(reply(event, "User verified"))
+			.and(DiscordUtil.reply(event, "User verified"))
 	}
 
 	override val description = "Verifies someone on the discord. Use again to un-verify someone."

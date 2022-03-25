@@ -4,6 +4,7 @@ import discord4j.core.event.domain.message.MessageCreateEvent
 import net.yogstation.yogbot.DatabaseManager
 import net.yogstation.yogbot.config.DiscordConfig
 import net.yogstation.yogbot.permissions.PermissionsManager
+import net.yogstation.yogbot.util.DiscordUtil
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 import java.sql.SQLException
@@ -15,7 +16,7 @@ class RemoveMentorCommand(discordConfig: DiscordConfig, permissions: Permissions
 	) {
 	override fun doCommand(event: MessageCreateEvent): Mono<*> {
 		val target = getTarget(event)
-			?: return reply(event, "Correct usage: `${discordConfig.commandPrefix}removementor <ckey or @Username>`")
+			?: return DiscordUtil.reply(event, "Correct usage: `${discordConfig.commandPrefix}removementor <ckey or @Username>`")
 		try {
 			database.connection.use { connection ->
 				connection.prepareStatement(
@@ -31,7 +32,7 @@ class RemoveMentorCommand(discordConfig: DiscordConfig, permissions: Permissions
 			}
 		} catch (e: SQLException) {
 			logger.error("Error in AddMentorCommand", e)
-			return reply(event, "Unable to access database.")
+			return DiscordUtil.reply(event, "Unable to access database.")
 		}
 	}
 

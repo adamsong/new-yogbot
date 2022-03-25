@@ -2,6 +2,7 @@ package net.yogstation.yogbot.listeners.commands
 
 import discord4j.core.event.domain.message.MessageCreateEvent
 import net.yogstation.yogbot.config.DiscordConfig
+import net.yogstation.yogbot.util.DiscordUtil
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 
@@ -21,7 +22,7 @@ class HelpCommand(val commands: List<TextCommand>, discordConfig: DiscordConfig)
 				output.append(helpText)
 				output.append("\n")
 			}
-		return reply(event, output.toString())
+		return DiscordUtil.reply(event, output.toString())
 	}
 
 	override val description = """

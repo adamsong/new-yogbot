@@ -3,6 +3,7 @@ package net.yogstation.yogbot.listeners.commands
 import discord4j.core.event.domain.message.MessageCreateEvent
 import net.yogstation.yogbot.DatabaseManager
 import net.yogstation.yogbot.config.DiscordConfig
+import net.yogstation.yogbot.util.DiscordUtil
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 import java.sql.SQLException
@@ -25,12 +26,12 @@ class ListAdminsCommand(discordConfig: DiscordConfig, private val database: Data
 							builder.append(results.getString("rank"))
 						}
 						results.close()
-						return reply(event, builder.toString())
+						return DiscordUtil.reply(event, builder.toString())
 					}
 			}
 		} catch (e: SQLException) {
 			logger.error("Error with SQL Query", e)
-			return reply(event, "An error has occurred")
+			return DiscordUtil.reply(event, "An error has occurred")
 		}
 	}
 

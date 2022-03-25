@@ -9,6 +9,7 @@ import net.yogstation.yogbot.DatabaseManager
 import net.yogstation.yogbot.config.DiscordChannelsConfig
 import net.yogstation.yogbot.config.DiscordConfig
 import net.yogstation.yogbot.permissions.PermissionsManager
+import net.yogstation.yogbot.util.DiscordUtil
 import net.yogstation.yogbot.util.StringUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -29,7 +30,7 @@ class ReviewCommand(
 
 	override fun doCommand(event: MessageCreateEvent): Mono<*> {
 		val args = event.message.content.split(" ").toTypedArray()
-		if (args.size < 2) return reply(event, "Usage is: `${discordConfig.commandPrefix}review <ckey> [strict]`")
+		if (args.size < 2) return DiscordUtil.reply(event, "Usage is: `${discordConfig.commandPrefix}review <ckey> [strict]`")
 		val ckey = StringUtils.ckeyIze(args[1])
 		val strict = event.message
 			.channelId

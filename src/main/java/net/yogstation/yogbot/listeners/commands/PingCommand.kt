@@ -4,6 +4,7 @@ import discord4j.core.event.domain.message.MessageCreateEvent
 import net.yogstation.yogbot.ByondConnector
 import net.yogstation.yogbot.config.ByondConfig
 import net.yogstation.yogbot.config.DiscordConfig
+import net.yogstation.yogbot.util.DiscordUtil
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 
@@ -17,9 +18,9 @@ class PingCommand(
 ) {
 	override fun doCommand(event: MessageCreateEvent): Mono<*> {
 		val pingResponse = byondConnector.request("?ping")
-		if (pingResponse.hasError()) return reply(event, pingResponse.error ?: "Unknown Error")
+		if (pingResponse.hasError()) return DiscordUtil.reply(event, pingResponse.error ?: "Unknown Error")
 		val playerCount: Int = (pingResponse.value as Float).toInt()
-		return reply(
+		return DiscordUtil.reply(
 			event, "There are **${playerCount}** players online, join them now with ${byondConfig.serverJoinAddress}"
 		)
 	}

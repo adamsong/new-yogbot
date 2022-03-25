@@ -7,6 +7,7 @@ import net.yogstation.yogbot.ByondConnector
 import net.yogstation.yogbot.config.ByondConfig
 import net.yogstation.yogbot.config.DiscordChannelsConfig
 import net.yogstation.yogbot.config.DiscordConfig
+import net.yogstation.yogbot.util.DiscordUtil
 import net.yogstation.yogbot.util.StringUtils
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
@@ -21,11 +22,11 @@ class InfoCommand(
 		admins = admins.replace("\t".toRegex(), "")
 
 		val pingResponse = byondConnector.request("?ping")
-		if (pingResponse.hasError()) return reply(event, pingResponse.error ?: "Unknown Error")
+		if (pingResponse.hasError()) return DiscordUtil.reply(event, pingResponse.error ?: "Unknown Error")
 		val playerCount: Int = (pingResponse.value as Float).toInt()
 
 		val statusResponse = byondConnector.request("?status")
-		if (statusResponse.hasError()) return reply(event, statusResponse.error ?: "Unknown Error")
+		if (statusResponse.hasError()) return DiscordUtil.reply(event, statusResponse.error ?: "Unknown Error")
 		var statusString = statusResponse.value as String
 		statusString = statusString.replace("\u0000".toRegex(), "")
 
@@ -76,7 +77,7 @@ class InfoCommand(
 		if (admins.trim { it <= ' ' }.isNotEmpty()) {
 			embedBuilder.addField("Admins online:", admins, false)
 		}
-		return reply(event, embedBuilder.build())
+		return DiscordUtil.reply(event, embedBuilder.build())
 	}
 
 	override val description = "Pings the server and names the admins"

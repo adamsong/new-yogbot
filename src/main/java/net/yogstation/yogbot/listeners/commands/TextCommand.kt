@@ -37,39 +37,6 @@ abstract class TextCommand(protected val discordConfig: DiscordConfig) : IEventH
 		return true
 	}
 
-	protected fun reply(event: MessageCreateEvent, message: String): Mono<*> {
-		return event.message
-			.channel
-			.flatMap { channel ->
-				channel.createMessage(
-					MessageCreateSpec.builder().messageReference(event.message.id).content(message).build()
-				)
-			}
-	}
-
-	protected fun reply(event: MessageCreateEvent, embed: EmbedCreateSpec): Mono<*> {
-		return event.message
-			.channel
-			.flatMap{ channel ->
-				channel.createMessage(
-					MessageCreateSpec.builder()
-						.messageReference(event.message.id)
-						.content("")
-						.addEmbed(embed)
-						.build()
-				)
-			}
-	}
-
-	protected fun send(event: MessageCreateEvent, message: String?): Mono<*> {
-		val channelMono: Mono<MessageChannel> = event.message.channel
-		return channelMono.flatMap{ channel: MessageChannel ->
-			channel.createMessage(
-				message
-			)
-		}
-	}
-
 	protected fun getTarget(event: MessageCreateEvent): CommandTarget? {
 		val partialMembers: List<PartialMember> = event.message.memberMentions
 		if (partialMembers.isNotEmpty()) return CommandTarget.of(partialMembers[0].id)

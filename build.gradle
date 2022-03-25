@@ -29,12 +29,6 @@ dependencies {
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 }
 
-tasks.withType(JavaCompile) {
-    doFirst {
-        println "AnnotationProcessorPath for $name is ${options.getAnnotationProcessorPath().getFiles()}"
-    }
-}
-
 compileKotlin {
     kotlinOptions {
         jvmTarget = "17"

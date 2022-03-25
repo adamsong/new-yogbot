@@ -5,6 +5,7 @@ import discord4j.core.GatewayDiscordClient
 import discord4j.core.event.domain.message.MessageCreateEvent
 import net.yogstation.yogbot.DatabaseManager
 import net.yogstation.yogbot.config.DiscordConfig
+import net.yogstation.yogbot.util.DiscordUtil
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 
@@ -18,13 +19,13 @@ class WhoIsCommand(
 ) {
 	override fun doCommand(event: MessageCreateEvent): Mono<*> {
 		val target =
-			getTarget(event) ?: return reply(event, "Usage: `${discordConfig.commandPrefix}whois <@Username|ckey>")
+			getTarget(event) ?: return DiscordUtil.reply(event, "Usage: `${discordConfig.commandPrefix}whois <@Username|ckey>")
 		val error = target.populate(database)
-		if (error != null) return reply(event, error)
-		val snowflake: Snowflake = target.snowflake ?: return reply(event, "Error getting discord id")
+		if (error != null) return DiscordUtil.reply(event, error)
+		val snowflake: Snowflake = target.snowflake ?: return DiscordUtil.reply(event, "Error getting discord id")
 		return client.getUserById(snowflake)
 			.flatMap { user ->
-				reply(
+				DiscordUtil.reply(
 					event, "Ckey ${target.ckey} is linked to discord account ${user.username}#${user.discriminator}"
 				)
 			}

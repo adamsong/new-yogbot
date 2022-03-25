@@ -4,6 +4,7 @@ import net.yogstation.yogbot.config.DiscordConfig
 import net.yogstation.yogbot.permissions.PermissionsManager
 import net.yogstation.yogbot.DatabaseManager
 import discord4j.core.event.domain.message.MessageCreateEvent
+import net.yogstation.yogbot.util.DiscordUtil
 import reactor.core.publisher.Mono
 import net.yogstation.yogbot.util.StringUtils
 import org.springframework.stereotype.Component
@@ -127,18 +128,18 @@ JOIN %s as ranklist ON adminlist.rank = ranklist.`rank`;
 				line.append('\n')
 				if (output.length + line.length > 1990) {
 					output.append("```")
-					action = action.and(send(event, output.toString()))
+					action = action.and(DiscordUtil.send(event, output.toString()))
 					output.setLength(0) // Empty the string builder
 					output.append("```diff\n")
 				}
 				output.append(line)
 			}
 			output.append("```")
-			action = action.and(send(event, output.toString()))
+			action = action.and(DiscordUtil.send(event, output.toString()))
 			action
 		} catch (e: SQLException) {
 			logger.error("Error getting activity", e)
-			reply(event, "Unable to reach the database, try again later")
+			DiscordUtil.reply(event, "Unable to reach the database, try again later")
 		}
 	}
 

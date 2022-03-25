@@ -2,6 +2,7 @@ package net.yogstation.yogbot.listeners.commands
 
 import net.yogstation.yogbot.config.DiscordConfig
 import discord4j.core.event.domain.message.MessageCreateEvent
+import net.yogstation.yogbot.util.DiscordUtil
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 import java.util.*
@@ -21,7 +22,7 @@ class EightBallCommand(discordConfig: DiscordConfig, private val random: Random)
 			"Don't count on it.", "My reply is no.", "My sources say no.",
 			"Outlook not so good.", "Very doubtful."
 		)
-		return reply(event, responses[random.nextInt(responses.size)])
+		return DiscordUtil.reply(event, responses[random.nextInt(responses.size)])
 	}
 
 	override val description = "Gaze into the future."

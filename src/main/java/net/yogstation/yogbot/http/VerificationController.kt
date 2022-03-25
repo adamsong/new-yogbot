@@ -44,7 +44,8 @@ class VerificationController(
 	private val random = SecureRandom()
 
 	@GetMapping("/api/verify")
-	fun doRedirect(@RequestParam(value = "state") state: String): ResponseEntity<Void> {
+	fun doRedirect(@RequestParam(value = "state") state: String): ResponseEntity<*> {
+		if (discordConfig.oauthClientId == "") return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(hydrateError("Verification is not implemented"))
 		val urlBuilder = StringBuilder(discordConfig.oauthAuthorizeUrl).apply {
 			append("?response_type=code")
 			append("&client_id=").append(discordConfig.oauthClientId)
@@ -52,7 +53,7 @@ class VerificationController(
 			append("&scope=openid")
 			append("&state=").append(state)
 		}
-		return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(urlBuilder.toString())).build()
+		return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(urlBuilder.toString())).build<Void>()
 	}
 
 	@PostMapping(value = ["/api/callback"], consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE])
@@ -107,6 +108,7 @@ class VerificationController(
 		@RequestParam(value = "state", required = false) state: String?,
 		@RequestParam(value = "code", required = false) code: String?
 	): Mono<HttpEntity<String>> {
+		if(discordConfig.oauthClientId == "") return Mono.just(HttpEntity(hydrateError("Verification is not implemented")))
 		if (error != null) return Mono.just(
 			HttpEntity(
 				hydrateError(
@@ -126,12 +128,9 @@ class VerificationController(
 		bodyValues.add("grant_type", "authorization_code")
 		bodyValues.add("code", code)
 		bodyValues.add("redirect_uri", "${httpConfig.publicPath}api/callback")
-		val authToken = Base64.getEncoder().encodeToString(
-			String.format("%s:%s", discordConfig.oauthClientId, discordConfig.oauthClientSecret)
-				.toByteArray(StandardCharsets.UTF_8)
-		)
+
 		return webClient.post().uri(URI.create(discordConfig.oauthTokenUrl))
-			.header("Authorization", String.format("Basic %s", authToken))
+			.headers { headers -> headers.setBasicAuth(discordConfig.oauthClientId, discordConfig.oauthClientSecret) }
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED).body(BodyInserters.fromFormData(bodyValues)).retrieve()
 			.bodyToMono(String::class.java).flatMap { token: String -> useToken(token, response, identity, state) }
 	}
@@ -164,7 +163,8 @@ class VerificationController(
 			return Mono.just(response.body(hydrateError("An error occurred while fetching access token")))
 		}
 		return webClient.get().uri(URI.create(discordConfig.oauthUserInfoUrl))
-			.header("Authorization", String.format("Bearer %s", accessToken)).retrieve().toEntity(String::class.java)
+			.headers { headers -> headers.setBearerAuth(accessToken) }
+			.retrieve().toEntity(String::class.java)
 			.flatMap { ckeyResponseEntity: ResponseEntity<String?> ->
 				if (!ckeyResponseEntity.statusCode.is2xxSuccessful || ckeyResponseEntity.body == null) return@flatMap Mono.just(
 					response.body("Invalid access token when fetching user info")

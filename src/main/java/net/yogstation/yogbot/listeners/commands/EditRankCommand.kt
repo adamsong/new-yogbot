@@ -11,6 +11,7 @@ import reactor.core.publisher.Mono
 import discord4j.common.util.Snowflake
 import discord4j.core.`object`.entity.Guild
 import discord4j.core.`object`.entity.Member
+import net.yogstation.yogbot.util.DiscordUtil
 
 abstract class EditRankCommand(
 	discordConfig: DiscordConfig,
@@ -25,21 +26,21 @@ abstract class EditRankCommand(
 		rankSetStmt: PreparedStatement, role: Long
 	): Mono<*> {
 		val errors = target.populate(database)
-		if (errors != null) return reply(event, errors)
-		val snowflake: Snowflake = target.snowflake ?: return reply(event, "Unable to get discord id")
+		if (errors != null) return DiscordUtil.reply(event, errors)
+		val snowflake: Snowflake = target.snowflake ?: return DiscordUtil.reply(event, "Unable to get discord id")
 
 		var result: Mono<*> = Mono.empty<Any>()
 		rankCheckStmt.setString(1, target.ckey)
 		val rankCheckResults = rankCheckStmt.executeQuery()
 		result = if (rankCheckResults.next()) {
-			result.and(send(event, "User already has in-game rank."))
+			result.and(DiscordUtil.send(event, "User already has in-game rank."))
 		} else {
 			rankSetStmt.setString(1, target.ckey)
 			rankSetStmt.execute()
 			if (rankSetStmt.updateCount > 0) {
-				result.and(send(event, "In game rank given successfully"))
+				result.and(DiscordUtil.send(event, "In game rank given successfully"))
 			} else {
-				result.and(send(event, "Failed to give in game rank"))
+				result.and(DiscordUtil.send(event, "Failed to give in game rank"))
 			}
 		}
 		rankCheckResults.close()
@@ -49,7 +50,7 @@ abstract class EditRankCommand(
 				guild.getMemberById(snowflake)
 					.flatMap { member: Member ->
 						member.addRole(Snowflake.of(role))
-							.and(send(event, "Added discord role"))
+							.and(DiscordUtil.send(event, "Added discord role"))
 					}
 			})
 	}
@@ -60,22 +61,22 @@ abstract class EditRankCommand(
 		role: Long
 	): Mono<*> {
 		val errors = target.populate(database)
-		if (errors != null) return reply(event, errors)
-		val snowflake: Snowflake = target.snowflake ?: return reply(event, "Unable to get discord id")
+		if (errors != null) return DiscordUtil.reply(event, errors)
+		val snowflake: Snowflake = target.snowflake ?: return DiscordUtil.reply(event, "Unable to get discord id")
 		var result: Mono<*> = Mono.empty<Any>()
 		rankSetStmt.setString(1, target.ckey)
 		rankSetStmt.execute()
 		result = if (rankSetStmt.updateCount > 0) {
-			result.and(send(event, "In game rank removed successfully"))
+			result.and(DiscordUtil.send(event, "In game rank removed successfully"))
 		} else {
-			result.and(send(event, "Failed to remove in game rank"))
+			result.and(DiscordUtil.send(event, "Failed to remove in game rank"))
 		}
 		return result.and(event.guild
 			.flatMap { guild: Guild ->
 				guild.getMemberById(snowflake)
 					.flatMap { member: Member ->
 						member.removeRole(Snowflake.of(role))
-							.and(send(event, "Removed discord role"))
+							.and(DiscordUtil.send(event, "Removed discord role"))
 					}
 			})
 	}

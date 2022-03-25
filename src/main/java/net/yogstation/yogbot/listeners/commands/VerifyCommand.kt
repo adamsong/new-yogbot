@@ -5,6 +5,7 @@ import net.yogstation.yogbot.config.DiscordConfig
 import net.yogstation.yogbot.config.HttpConfig
 import net.yogstation.yogbot.http.VerificationController
 import net.yogstation.yogbot.http.VerificationController.AuthIdentity
+import net.yogstation.yogbot.util.DiscordUtil
 import net.yogstation.yogbot.util.StringUtils
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
@@ -17,8 +18,9 @@ class VerifyCommand(
 ) : TextCommand(discordConfig) {
 	private val random = SecureRandom()
 	override fun doCommand(event: MessageCreateEvent): Mono<*> {
+		if(discordConfig.oauthClientId == "") return DiscordUtil.reply(event, "Verification command is not configured.")
 		val args = event.message.content.split(" ")
-		if (args.size < 2) return reply(event, "Usage: `${args[0]} <ckey>`")
+		if (args.size < 2) return DiscordUtil.reply(event, "Usage: `${args[0]} <ckey>`")
 		val ckey = StringUtils.ckeyIze(args.subList(1, args.size).joinToString(""))
 
 		val bytes = ByteArray(8)
@@ -32,7 +34,7 @@ class VerifyCommand(
 			author.get().avatarUrl,
 			author.get().tag
 		)
-		return reply(
+		return DiscordUtil.reply(
 			event, "Click the following link to complete the linking process: ${httpConfig.publicPath}api/verify?state=$state"
 		)
 	}

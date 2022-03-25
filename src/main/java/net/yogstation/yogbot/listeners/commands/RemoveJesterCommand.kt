@@ -3,6 +3,7 @@ package net.yogstation.yogbot.listeners.commands
 import discord4j.common.util.Snowflake
 import discord4j.core.event.domain.message.MessageCreateEvent
 import net.yogstation.yogbot.config.DiscordConfig
+import net.yogstation.yogbot.util.DiscordUtil
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 
@@ -13,7 +14,7 @@ class RemoveJesterCommand(discordConfig: DiscordConfig) : TextCommand(discordCon
 			.get()
 			.removeRole(Snowflake.of(discordConfig.jesterRole))
 			.and(
-				reply(
+				DiscordUtil.reply(
 					event,
 					"Success! But beware if you violate the sacred Jester Oath by daring to ping Jester once again you shall be smited with a thousand YOGGERS!"
 				)

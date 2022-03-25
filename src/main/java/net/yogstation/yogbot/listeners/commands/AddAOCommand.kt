@@ -4,6 +4,7 @@ import net.yogstation.yogbot.config.DiscordConfig
 import net.yogstation.yogbot.permissions.PermissionsManager
 import net.yogstation.yogbot.DatabaseManager
 import discord4j.core.event.domain.message.MessageCreateEvent
+import net.yogstation.yogbot.util.DiscordUtil
 import reactor.core.publisher.Mono
 import org.springframework.stereotype.Component
 import java.sql.SQLException
@@ -15,7 +16,7 @@ class AddAOCommand(discordConfig: DiscordConfig, permissions: PermissionsManager
 	) {
 	override fun doCommand(event: MessageCreateEvent): Mono<*> {
 		val target = getTarget(event)
-			?: return reply(event, "Correct usage: `${discordConfig.commandPrefix}addao <ckey or @Username>`")
+			?: return DiscordUtil.reply(event, "Correct usage: `${discordConfig.commandPrefix}addao <ckey or @Username>`")
 		try {
 			database.connection.use { connection ->
 				connection.prepareStatement(
@@ -36,7 +37,7 @@ class AddAOCommand(discordConfig: DiscordConfig, permissions: PermissionsManager
 			}
 		} catch (e: SQLException) {
 			logger.error("Error in AddAOCommand", e)
-			return reply(event, "Unable to access database.")
+			return DiscordUtil.reply(event, "Unable to access database.")
 		}
 	}
 
