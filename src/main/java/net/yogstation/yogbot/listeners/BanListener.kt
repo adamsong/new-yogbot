@@ -16,6 +16,6 @@ class BanListener(val client: GatewayDiscordClient, val channelsConfig: DiscordC
 	}
 
 	fun handle(event: BanEvent): Mono<*> {
-		return DiscordUtil.logToChannel("**${event.user.username}#${event.user.discriminator}** was banned from the server", client, Snowflake.of(channelsConfig.channelPublicLog));
+		return DiscordUtil.logToChannel("**${event.user.username}#${event.user.discriminator}** was banned from the server", client, Snowflake.of(channelsConfig.channelPublicLog))
 	}
 }

@@ -16,6 +16,6 @@ class MemberLeaveListener(val client: GatewayDiscordClient, val channelsConfig: 
 	}
 
 	fun handle(event: MemberLeaveEvent): Mono<*> {
-		return DiscordUtil.logToChannel("**${event.user.username}#${event.user.discriminator}** left the server", client, Snowflake.of(channelsConfig.channelPublicLog));
+		return DiscordUtil.logToChannel("**${event.user.username}#${event.user.discriminator}** left the server", client, Snowflake.of(channelsConfig.channelPublicLog))
 	}
 }
