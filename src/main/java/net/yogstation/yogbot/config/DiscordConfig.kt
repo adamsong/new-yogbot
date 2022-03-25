@@ -5,23 +5,24 @@ import org.springframework.boot.context.properties.ConstructorBinding
 
 @ConstructorBinding
 @ConfigurationProperties(prefix = "yogbot.discord")
-class DiscordConfig () {
+class DiscordConfig {
 
 	var botToken: String = "no token here"
-
 	var commandPrefix: String = "!"
-	var serverName: String = "Yogstation 13"
 
+	var serverName: String = "Yogstation 13"
 	var useLocalCommands: Boolean = false
 
 	var oauthAuthorizeUrl: String = "https://bab.yogstation.net/auth/authorize"
+
 	var oauthTokenUrl: String = "https://bab.yogstation.net/auth/token"
 	var oauthUserInfoUrl: String = "https://bab.yogstation.net/auth/userinfo"
 	var oauthClientId: String = ""
 	var oauthClientSecret: String = ""
 
-	var asayWebhookUrl: String = ""
 	var msayWebhookUrl: String = ""
+	var asayWebhookUrl: String = ""
+	var ticketWebhookUrl: String = ""
 
 	var mainGuildID: Long = 134720091576205312L
 	var aoRole: Long = 471634210923216906L

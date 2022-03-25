@@ -59,12 +59,6 @@ class BanManager(val client: GatewayDiscordClient, val discordConfig: DiscordCon
 				.flatMap { privateChannel -> privateChannel.createMessage(banMessage.toString()) })
 	}
 
-	fun unban(snowflake: Snowflake): Mono<*> {
-		tempBans.removeAll(tempBans.stream().filter { banRecord -> banRecord.snowflake == snowflake }.toList())
-		return client.getMemberById(Snowflake.of(discordConfig.mainGuildID), snowflake)
-			.flatMap { member -> member.removeRole(Snowflake.of(discordConfig.softBanRole)) }
-	}
-
 	fun unban(member: Member, reason: String, user: String): Mono<*> {
 		tempBans.removeAll(
 			tempBans.stream().filter { banRecord -> banRecord.snowflake == member.id }.toList())

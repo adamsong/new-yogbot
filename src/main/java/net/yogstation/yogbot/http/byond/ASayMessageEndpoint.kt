@@ -9,7 +9,7 @@ import org.springframework.web.reactive.function.client.WebClient
 
 @Component
 class ASayMessageEndpoint(webClient: WebClient, mapper: ObjectMapper, database: DatabaseManager,
-						  client: GatewayDiscordClient, discordConfig: DiscordConfig) : MessageEndpoint(webClient, mapper, database, client, discordConfig) {
+						  client: GatewayDiscordClient, discordConfig: DiscordConfig) : DiscordWebhookEndpoint(webClient, mapper, database, client, discordConfig) {
 
 	override val method: String
 		get() = "asaymessage"

@@ -27,7 +27,6 @@ class GithubController(private val webClient: WebClient, private val mapper: Obj
 			})
 			.toEntity(String::class.java)
 			.flatMap { prEntity -> if(prEntity.statusCode.is2xxSuccessful) channel.createMessage(getPrEmbed(prEntity.body)) else Mono.empty<Any>()}
-
 	}
 
 	private fun getPrEmbed(jsonData: String?): EmbedCreateSpec {

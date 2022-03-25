@@ -13,6 +13,7 @@ import net.yogstation.yogbot.config.DiscordConfig
 import net.yogstation.yogbot.util.ByondLinkUtil
 import net.yogstation.yogbot.util.HttpUtil
 import net.yogstation.yogbot.util.StringUtils
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpStatus
@@ -22,9 +23,10 @@ import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
 import java.net.URI
 
-abstract class MessageEndpoint(protected val webClient: WebClient, protected val mapper: ObjectMapper, protected val database: DatabaseManager,
-							   protected val client: GatewayDiscordClient, protected val discordConfig: DiscordConfig) : IByondEndpoint {
-	protected val logger = LoggerFactory.getLogger(javaClass)
+abstract class DiscordWebhookEndpoint(
+	private val webClient: WebClient, protected val mapper: ObjectMapper, protected val database: DatabaseManager,
+	protected val client: GatewayDiscordClient, protected val discordConfig: DiscordConfig) : IByondEndpoint {
+	protected val logger: Logger = LoggerFactory.getLogger(javaClass)
 
 	protected abstract val webhookUrl: String
 
@@ -48,7 +50,7 @@ abstract class MessageEndpoint(protected val webClient: WebClient, protected val
 		} else sendData(node)
 	}
 
-	private fun sendData(webhookData: ObjectNode?): Mono<HttpEntity<String>> {
+	protected fun sendData(webhookData: ObjectNode?): Mono<HttpEntity<String>> {
 		return try {
 			webClient.post()
 				.uri(URI.create(webhookUrl))

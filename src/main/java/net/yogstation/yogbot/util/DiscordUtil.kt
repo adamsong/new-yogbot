@@ -1,10 +1,14 @@
 package net.yogstation.yogbot.util
 
+import discord4j.common.util.Snowflake
+import discord4j.core.GatewayDiscordClient
 import discord4j.core.`object`.entity.channel.MessageChannel
 import discord4j.core.event.domain.message.MessageCreateEvent
 import discord4j.core.spec.EmbedCreateSpec
 import discord4j.core.spec.MessageCreateSpec
 import reactor.core.publisher.Mono
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 object DiscordUtil {
 	fun reply(event: MessageCreateEvent, message: String): Mono<*> {
@@ -38,5 +42,15 @@ object DiscordUtil {
 				message
 			)
 		}
+	}
+
+	fun logToChannel(
+		message: String,
+		client: GatewayDiscordClient,
+		channelId: Snowflake
+	): Mono<*> {
+		val currentTime = LocalDateTime.now()
+		return client.getChannelById(channelId)
+			.flatMap { it.restChannel.createMessage("[${currentTime.format(DateTimeFormatter.ISO_DATE_TIME)}] $message") }
 	}
 }
