@@ -15,23 +15,23 @@ import org.springframework.http.HttpEntity
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.stereotype.Controller
+import org.springframework.ui.Model
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MultiValueMap
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.ResponseBody
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
 import java.io.IOException
 import java.net.URI
-import java.nio.charset.StandardCharsets
 import java.security.SecureRandom
 import java.sql.SQLException
-import java.util.*
 
-@RestController
+@Controller
 class VerificationController(
 	private val webClient: WebClient,
 	private val mapper: ObjectMapper,
@@ -43,9 +43,9 @@ class VerificationController(
 	val oauthState: MutableMap<String, AuthIdentity> = HashMap()
 	private val random = SecureRandom()
 
+	@ResponseBody
 	@GetMapping("/api/verify")
 	fun doRedirect(@RequestParam(value = "state") state: String): ResponseEntity<*> {
-		if (discordConfig.oauthClientId == "") return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(hydrateError("Verification is not implemented"))
 		val urlBuilder = StringBuilder(discordConfig.oauthAuthorizeUrl).apply {
 			append("?response_type=code")
 			append("&client_id=").append(discordConfig.oauthClientId)
@@ -57,13 +57,23 @@ class VerificationController(
 	}
 
 	@PostMapping(value = ["/api/callback"], consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE])
-	fun callbackPost(data: CallbackData): HttpEntity<String> {
+	fun callbackPost(data: CallbackData, model: Model): String {
 		val state = data.state
 		val csrfToken = data.csrftoken
-		if (!oauthState.containsKey(state)) return HttpEntity(hydrateError(String.format("State %s is unknown", state)))
-		val authIdentity: AuthIdentity = oauthState[state]
-			?: return HttpEntity(hydrateError(String.format("State %s is unknown", state)))
-		if (authIdentity.csrfToken == null || authIdentity.csrfToken != csrfToken) return HttpEntity(hydrateError("CSRF token mismatch"))
+		if (!oauthState.containsKey(state)) {
+			model.addAttribute("error", "State $state is unknown")
+			return "verification/error"
+		}
+		val authIdentity: AuthIdentity? = oauthState[state]
+		if (authIdentity == null ){
+			model.addAttribute("error", "State %state is unkown")
+			return "verification/error"
+		}
+		if (authIdentity.csrfToken == null || authIdentity.csrfToken != csrfToken) {
+			model.addAttribute("error", "CSRF token mismatch")
+			return "verification/error"
+		}
+
 		oauthState.remove(state)
 
 		try {
@@ -82,22 +92,29 @@ class VerificationController(
 					).use { linkStmt ->
 						queryStmt.setString(1, authIdentity.ckey)
 						val queryResults = queryStmt.executeQuery()
-						if (!queryResults.next()) return HttpEntity(hydrateError("New account detected, please login on the server at least once to proceed"))
+						if (!queryResults.next()) {
+							model.addAttribute("error", "New account detected, please login on the server at least once to proceed")
+							return "verification/error"
+						}
 						queryResults.close()
 						linkStmt.setString(1, authIdentity.snowflake.asString())
 						linkStmt.setString(2, authIdentity.ckey)
 						linkStmt.execute()
-						if (linkStmt.updateCount < 1) return HttpEntity(hydrateError("Failed to link accounts!"))
+						if (linkStmt.updateCount < 1) {
+							model.addAttribute("error", "Failed to link accounts!")
+							return "verification/error"
+						}
 						client.getMemberById(Snowflake.of(discordConfig.mainGuildID), authIdentity.snowflake)
 							.flatMap { member: Member -> member.addRole(Snowflake.of(discordConfig.byondVerificationRole)) }
 							.subscribe()
-						return HttpEntity(hydrateComplete())
+						return "verification/success"
 					}
 				}
 			}
 		} catch (e: SQLException) {
 			LOGGER.error("Error linking accounts", e)
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(hydrateError("An error has occurred"))
+			model.addAttribute("error", "An error ahs occurred")
+			return "verification/error"
 		}
 	}
 
@@ -106,24 +123,37 @@ class VerificationController(
 		@RequestParam(value = "error", required = false) error: String?,
 		@RequestParam(value = "error_description", required = false) errorDescription: String?,
 		@RequestParam(value = "state", required = false) state: String?,
-		@RequestParam(value = "code", required = false) code: String?
-	): Mono<HttpEntity<String>> {
-		if(discordConfig.oauthClientId == "") return Mono.just(HttpEntity(hydrateError("Verification is not implemented")))
-		if (error != null) return Mono.just(
-			HttpEntity(
-				hydrateError(
-					"Upstream login error: ${
-						errorDescription
-							?: error
-					}"
-				)
-			)
-		)
-		if (state == null || code == null) return Mono.just(HttpEntity(hydrateError("State and code are both required")))
-		val response = ResponseEntity.status(HttpStatus.OK).header("X-Frame-Options", "DENY")
-		if (!oauthState.containsKey(state)) return Mono.just(response.body(hydrateError("State is unknown")))
-		val identity = oauthState[state] ?: return Mono.just(response.body(hydrateError("State is unknown")))
-		if (identity.csrfToken != null) return Mono.just(response.body(hydrateError("Authorization request already used")))
+		@RequestParam(value = "code", required = false) code: String?,
+		model: Model
+	): Mono<String> {
+		if(discordConfig.oauthClientId == "") {
+			model.addAttribute("error", "Verification is not implemented")
+			return Mono.just("verification/error")
+		}
+		if (error != null) {
+			model.addAttribute("error", "Upstream login error: ${errorDescription ?: error}")
+			return Mono.just("verification/error")
+		}
+
+		if (state == null || code == null) {
+			model.addAttribute("error", "State and code are both required")
+			return Mono.just("verification/error")
+		}
+
+		if (!oauthState.containsKey(state)) {
+			model.addAttribute("error", "State is unknown")
+			return Mono.just("verification/error")
+		}
+		val identity = oauthState[state]
+		if (identity == null) {
+			model.addAttribute("error", "State is unknown")
+			return Mono.just("verification/error")
+		}
+		if (identity.csrfToken != null) {
+			model.addAttribute("error", "Authorization request already used")
+			return Mono.just("verification/error")
+		}
+
 		val bodyValues: MultiValueMap<String, String> = LinkedMultiValueMap()
 		bodyValues.add("grant_type", "authorization_code")
 		bodyValues.add("code", code)
@@ -132,90 +162,58 @@ class VerificationController(
 		return webClient.post().uri(URI.create(discordConfig.oauthTokenUrl))
 			.headers { headers -> headers.setBasicAuth(discordConfig.oauthClientId, discordConfig.oauthClientSecret) }
 			.contentType(MediaType.APPLICATION_FORM_URLENCODED).body(BodyInserters.fromFormData(bodyValues)).retrieve()
-			.bodyToMono(String::class.java).flatMap { token: String -> useToken(token, response, identity, state) }
+			.bodyToMono(String::class.java).flatMap { token: String -> useToken(token, identity, state, model) }
 	}
 
 	private fun useToken(
 		token: String,
-		response: ResponseEntity.BodyBuilder,
 		identity: AuthIdentity,
-		state: String
-	): Mono<HttpEntity<String>> {
+		state: String,
+		model: Model
+	): Mono<String> {
 		val accessToken: String = try {
 			val root = mapper.readTree(token)
 			val errorNode = root["error"]
 			if (errorNode != null) {
 				val errorDescriptionNode = root["error_description"]
-				return Mono.just(
-					response.body(
-						hydrateError(
-							String.format(
-								"Upstream error when fetching access token: %s",
-								if (errorDescriptionNode == null) errorNode.asText() else errorDescriptionNode.asText()
-							)
-						)
-					)
-				)
+				model.addAttribute("error", "Upstream error when fetching access to token ${
+					errorDescriptionNode?.asText() ?: errorNode.asText()	
+				}")
+				return Mono.just("verification/error")
 			}
 			root["access_token"].asText()
 		} catch (e: IOException) {
 			LOGGER.error("Error getting token", e)
-			return Mono.just(response.body(hydrateError("An error occurred while fetching access token")))
+			model.addAttribute("error", "An error occurred while fetching access token")
+			return Mono.just("verification/error")
 		}
-		return webClient.get().uri(URI.create(discordConfig.oauthUserInfoUrl))
+
+		return webClient.get()
+			.uri(URI.create(discordConfig.oauthUserInfoUrl))
 			.headers { headers -> headers.setBearerAuth(accessToken) }
-			.retrieve().toEntity(String::class.java)
+			.retrieve()
+			.toEntity(String::class.java)
 			.flatMap { ckeyResponseEntity: ResponseEntity<String?> ->
-				if (!ckeyResponseEntity.statusCode.is2xxSuccessful || ckeyResponseEntity.body == null) return@flatMap Mono.just(
-					response.body("Invalid access token when fetching user info")
-				)
 				val ckey: String = try {
 					StringUtils.ckeyIze(mapper.readTree(ckeyResponseEntity.body)["ckey"].asText())
 				} catch (e: JsonProcessingException) {
 					LOGGER.info("Error processing info response", e)
-					return@flatMap Mono.just(response.body(hydrateError("Failed to parse API response")))
+					model.addAttribute("error", "An error occurred while fetching access token")
+					return@flatMap Mono.just("verification/error")
 				}
 				if (ckey != identity.ckey) {
-					return@flatMap Mono.just(
-						response.body(
-							hydrateError(
-								String.format(
-									"Ckey does not match, you attempted to login using %s while the linking process was initialized with %s",
-									ckey,
-									identity.ckey
-								)
-							)
-						)
-					)
+					model.addAttribute("error","Ckey does not match, you attempted to login using $ckey while the linking process was initialized with ${identity.ckey}")
+					return@flatMap Mono.just("verification/error")
 				}
 				val bytes = ByteArray(32)
 				random.nextBytes(bytes)
 				identity.csrfToken = StringUtils.bytesToHex(bytes)
-				Mono.just(response.body(hydrateConfirm(identity.tag, identity.avatar, state, identity.csrfToken)))
+				model.addAttribute("discordTag", identity.tag)
+				model.addAttribute("discordAvatar", identity.avatar)
+				model.addAttribute("state", state)
+				model.addAttribute("csrfToken", identity.csrfToken)
+				Mono.just("verification/confirm")
 			}
-	}
-
-	private fun hydrateError(error: String): String {
-		return errorTpl.replace("\$errormsg$", StringEscapeUtils.escapeHtml4(error))
-	}
-
-	private fun hydrateComplete(): String {
-		return completeTpl
-	}
-
-	private fun hydrateConfirm(
-		rawDiscordTag: String,
-		rawDiscordAvatar: String,
-		rawState: String,
-		rawCsrfToken: String?
-	): String {
-		val discordTag = StringEscapeUtils.escapeHtml4(rawDiscordTag)
-		val discordAvatar = StringEscapeUtils.escapeHtml4(rawDiscordAvatar)
-		val state = StringEscapeUtils.escapeHtml4(rawState)
-		val csrfToken = StringEscapeUtils.escapeHtml4(rawCsrfToken)
-		return confirmTpl.replace("\\\$usertag\\$".toRegex(), discordTag)
-			.replace("\\\$useravatar\\$".toRegex(), discordAvatar).replace("\\\$state\\$".toRegex(), state)
-			.replace("\\\$csrftoken\\$".toRegex(), csrfToken)
 	}
 
 	class AuthIdentity(var ckey: String, var snowflake: Snowflake, var avatar: String, var tag: String) {
@@ -223,12 +221,6 @@ class VerificationController(
 	}
 
 	companion object {
-		private const val errorTpl =
-			"`<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, shrink-to-fit=no\"><title>Yogstation Account Linking</title><link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css\"></head><body><header class=\"d-flex justify-content-center align-items-center\" style=\"height: 3rem;background: var(--bs-blue);\"><h1 style=\"color: rgb(255,255,255);\">Yogstation Account Linking</h1></header><div class=\"container\" style=\"margin-top: 2rem;\"><div class=\"card\"><div class=\"card-body d-flex flex-column align-items-center\"><h4 class=\"card-title\">An error occured!</h4><p class=\"card-text\">\$errormsg$</p></div></div></div><script src=\"https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js\"></script></body></html>`"
-		private const val confirmTpl =
-			"<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, shrink-to-fit=no\"><title>Yogstation Account Linking</title><link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css\"></head><body><header class=\"d-flex justify-content-center align-items-center\" style=\"height: 3rem;background: var(--bs-blue);\"><h1 style=\"color: rgb(255,255,255);\">Yogstation Account Linking</h1></header><div class=\"container\" style=\"margin-top: 2rem;\"><div class=\"card\"><div class=\"card-body d-flex flex-column justify-content-center align-items-center\"><h4 class=\"card-title\">Please confirm account linking</h4><p class=\"card-text\">Is this your discord account?</p><span>\$usertag$</span><img class=\"rounded-circle d-block\" src=\"\$useravatar$\" style=\"margin: 0 auto;\"><form style=\"margin-top: 2rem;\" method=\"post\"><input class=\"form-control\" type=\"hidden\" value=\"\$csrftoken$\" name=\"csrftoken\"><input class=\"form-control\" type=\"hidden\" name=\"state\" value=\"\$state$\"><button class=\"btn btn-danger\" type=\"button\" style=\"margin: 0 1rem;\" onclick=\"window.close()\">No</button><button class=\"btn btn-success\" type=\"submit\" style=\"margin: 0 1rem;\">Yes</button></form></div></div></div><script src=\"https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js\"></script></body></html>"
-		private const val completeTpl =
-			"<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, shrink-to-fit=no\"><title>Yogstation Account Linking</title><link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css\"></head><body><header class=\"d-flex justify-content-center align-items-center\" style=\"height: 3rem;background: var(--bs-blue);\"><h1 style=\"color: rgb(255,255,255);\">Yogstation Account Linking</h1></header><div class=\"container\" style=\"margin-top: 2rem;\"><div class=\"card\"><div class=\"card-body d-flex flex-column align-items-center\"><h4 class=\"card-title\">Your account is now linked!</h4></div></div></div><script src=\"https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js\"></script></body></html>"
 		private val LOGGER = LoggerFactory.getLogger(VerificationController::class.java)
 	}
 }

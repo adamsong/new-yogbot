@@ -1,6 +1,5 @@
 package net.yogstation.yogbot.http
 
-import discord4j.core.GatewayDiscordClient
 import net.yogstation.yogbot.util.HttpUtil
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpStatus

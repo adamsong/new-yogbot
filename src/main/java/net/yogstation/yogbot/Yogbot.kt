@@ -18,6 +18,7 @@ import org.springframework.boot.builder.SpringApplicationBuilder
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 import org.springframework.context.annotation.Bean
 import org.springframework.scheduling.annotation.EnableScheduling
+import org.springframework.web.client.RestTemplate
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
 import java.util.*
@@ -70,6 +71,11 @@ open class Yogbot {
 	@Bean
 	open fun getObjectMapper(): ObjectMapper {
 		return ObjectMapper()
+	}
+
+	@Bean
+	open fun getRestTemplate(): RestTemplate {
+		return RestTemplate();
 	}
 
 	private val logger = LoggerFactory.getLogger(Yogbot::class.java)
