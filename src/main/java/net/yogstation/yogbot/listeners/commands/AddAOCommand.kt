@@ -18,7 +18,7 @@ class AddAOCommand(discordConfig: DiscordConfig, permissions: PermissionsManager
 		val target = getTarget(event)
 			?: return DiscordUtil.reply(event, "Correct usage: `${discordConfig.commandPrefix}addao <ckey or @Username>`")
 		try {
-			database.connection.use { connection ->
+			database.byondDbConnection.use { connection ->
 				connection.prepareStatement(
 					"SELECT ckey FROM `${database.prefix("admin")}` WHERE `ckey` = ?;"
 				).use { adminCheckStmt ->

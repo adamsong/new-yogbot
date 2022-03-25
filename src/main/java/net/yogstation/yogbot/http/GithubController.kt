@@ -6,7 +6,7 @@ import discord4j.core.`object`.entity.channel.MessageChannel
 import discord4j.core.spec.EmbedCreateSpec
 import discord4j.rest.util.Color
 import net.yogstation.yogbot.config.GithubConfig
-import net.yogstation.yogbot.util.Result
+import net.yogstation.yogbot.util.YogResult
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
@@ -88,7 +88,7 @@ class GithubController(private val webClient: WebClient, private val mapper: Obj
 			.build()
 	}
 
-	private fun compileChangelog(data: JsonNode): Result<Changelog?, String?> {
+	private fun compileChangelog(data: JsonNode): YogResult<Changelog?, String?> {
 
 		val body = data.get("body").asText().replace("\r\n", "\n").split("\n")
 		var username = data.get("user").get("login").asText()
@@ -116,7 +116,7 @@ class GithubController(private val webClient: WebClient, private val mapper: Obj
 				line.startsWith("/ \uD83C\uDD91") ||
 				line.startsWith(":/\uD83C\uDD91")
 			) {
-				if(!inCLTag) return Result.error("Found the end of the changelog before the beginning")
+				if(!inCLTag) return YogResult.error("Found the end of the changelog before the beginning")
 				inCLTag = false
 				foundClosingTag = true
 				continue
@@ -142,18 +142,18 @@ class GithubController(private val webClient: WebClient, private val mapper: Obj
 				"typo",	"spellcheck" ->	ChangelogEntry("spellcheck", "pen_ballpoint", entryText)
 				"experimental",	"experiment" -> ChangelogEntry("experiment", "biohazard", entryText)
 				"tgs" -> ChangelogEntry("tgs", "question", entryText)
-				else -> return Result.error("Unknown tag $entryType")
+				else -> return YogResult.error("Unknown tag $entryType")
 			})
 		}
 		if (foundOpeningTag && !foundClosingTag) {
-			return Result.error("Changlog closing tag was never found")
+			return YogResult.error("Changlog closing tag was never found")
 		}
 
 		if(!foundOpeningTag) {
-			return Result.error("Changelog not found")
+			return YogResult.error("Changelog not found")
 		}
 
-		return Result.success(Changelog(username, changelog))
+		return YogResult.success(Changelog(username, changelog))
 
 	}
 

@@ -18,7 +18,7 @@ class RemoveMentorCommand(discordConfig: DiscordConfig, permissions: Permissions
 		val target = getTarget(event)
 			?: return DiscordUtil.reply(event, "Correct usage: `${discordConfig.commandPrefix}removementor <ckey or @Username>`")
 		try {
-			database.connection.use { connection ->
+			database.byondDbConnection.use { connection ->
 				connection.prepareStatement(
 					"DELETE FROM `${database.prefix("mentor")}` WHERE `ckey` = ?;"
 				).use { mentorSetStatement ->

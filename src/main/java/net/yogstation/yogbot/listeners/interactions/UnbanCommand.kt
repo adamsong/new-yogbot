@@ -20,11 +20,11 @@ class UnbanCommand(private val permissions: PermissionsManager, private val banM
 		get() = "Unban"
 
 	override fun handle(event: UserInteractionEvent): Mono<*> {
-		return if (permissions.hasPermission(event.interaction.member.orElse(null), "ban")) event.reply()
+		return if (!permissions.hasPermission(event.interaction.member.orElse(null), "ban")) event.reply()
 			.withEphemeral(true).withContent("You do not have permission to run that command") else event.presentModal()
 			.withCustomId(String.format("%s-%s", idPrefix, event.targetId.asString()))
 			.withTitle("Unban Menu")
-			.withComponents(ActionRow.of(TextInput.paragraph("reason", "Ban Reason")))
+			.withComponents(ActionRow.of(TextInput.paragraph("reason", "Unban Reason")))
 	}
 
 	override val idPrefix: String
@@ -50,10 +50,11 @@ class UnbanCommand(private val permissions: PermissionsManager, private val banM
 			.guild
 			.flatMap { guild: Guild -> guild.getMemberById(toBan) }
 			.flatMap { member: Member? ->
-				banManager.unban(
+				val result = banManager.unban(
 					member!!, finalReason, event.interaction.user.username
 				)
-					.and(event.reply().withEphemeral(true).withContent("Ban issued successfully"))
+				if(result.error != null || result.value == null) event.reply().withEphemeral(true).withContent(result.error ?: "Unknown Error")
+				else result.value.and(event.reply().withEphemeral(true).withContent("Ban issued successfully"))
 			}
 	}
 }

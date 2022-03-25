@@ -83,7 +83,7 @@ class ReviewCommand(
 				val relatedKeys: MutableMap<String, RelatedInfo> = HashMap()
 				val tableName = database.prefix("connection_log")
 				try {
-					database.connection.use { connection ->
+					database.byondDbConnection.use { connection ->
 						connection.prepareStatement(
 							String.format(
 								"SELECT computerid, ip FROM %s WHERE ckey = ?;",
@@ -153,7 +153,7 @@ class ReviewCommand(
 
 		private fun checkBannu(victim: String) {
 			try {
-				database.connection.use { connection ->
+				database.byondDbConnection.use { connection ->
 					connection.prepareStatement(
 						String.format(
 							"SELECT 1 FROM `%s` WHERE ckey = ? AND role IN ('Server') AND unbanned_datetime IS NULL AND (expiration_time IS NULL OR expiration_time > NOW())",

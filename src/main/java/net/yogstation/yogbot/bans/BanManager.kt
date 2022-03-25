@@ -4,71 +4,157 @@ import discord4j.common.util.Snowflake
 import discord4j.core.GatewayDiscordClient
 import discord4j.core.`object`.entity.Guild
 import discord4j.core.`object`.entity.Member
+import discord4j.gateway.intent.Intent
+import net.yogstation.yogbot.DatabaseManager
 import net.yogstation.yogbot.config.DiscordConfig
+import net.yogstation.yogbot.util.LogChannel
+import net.yogstation.yogbot.util.YogResult
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
-import java.time.LocalDateTime
+import java.sql.SQLException
 
 @Component
-class BanManager(val client: GatewayDiscordClient, val discordConfig: DiscordConfig) {
+class BanManager(val client: GatewayDiscordClient, val discordConfig: DiscordConfig, val database: DatabaseManager, private val logChannel: LogChannel) {
 	private val logger: Logger = LoggerFactory.getLogger(this::class.java)
-	private val tempBans: MutableList<BanRecord> = ArrayList()
+
+	private val softbanRole = Snowflake.of(discordConfig.softBanRole)
 
 	@Scheduled(fixedRate = 15000)
 	fun checkBans() {
+		if(!client.gatewayResources.intents.contains(Intent.GUILD_MEMBERS)) {
+			logger.error("Unable to process unbans, lacking GUILD_MEMBERS intent")
+			return
+		}
+
 		val guild: Guild? = client.getGuildById(Snowflake.of(discordConfig.mainGuildID)).block()
 		if (guild == null) {
 			logger.error("Unable to locate guild, cannot handle unbans")
 			return
 		}
 
-		val toRemove: MutableList<BanRecord> = ArrayList()
-		tempBans.stream().filter(BanRecord::hasExpired).forEach { banRecord ->
-			guild.getMemberById(banRecord.snowflake)
-				.flatMap { member -> member.removeRole(Snowflake.of(discordConfig.softBanRole), "Softban Expired") }
-				.block()
-			toRemove.add(banRecord)
+		val bannedSnowflakes: MutableSet<Snowflake> = HashSet()
+		try {
+			database.yogbotDbConnection.use { connection ->
+				val stmt = connection.createStatement()
+				stmt.use { statement ->
+					statement.executeQuery("SELECT discord_id FROM bans WHERE (expires_at > NOW() OR expires_at IS NULL) AND revoked_at IS NULL;").use { results ->
+						while (results.next()) {
+							bannedSnowflakes.add(Snowflake.of(results.getLong("discord_id")))
+						} } }
+			}
+		} catch (e: SQLException) {
+			logger.error("Error fetching bans", e)
+			return
 		}
-		tempBans.removeAll(toRemove)
+
+		guild.members.flatMap { member ->
+			if(bannedSnowflakes.contains(member.id) != member.roleIds.contains(softbanRole)) {
+				if(bannedSnowflakes.contains(member.id)) {
+					member.addRole(softbanRole, "Reapplying softban").and(logChannel.log("Softban automatically reapplied to ${member.username}"))
+				} else {
+					member.removeRole(softbanRole, "Ban expired").and(logChannel.log("Bans expired for ${member.username}"))
+				}
+			} else
+				Mono.empty<Any>()
+		}.subscribe()
 	}
 
-	fun ban(member: Member, reason: String, duration: Int, author: String): Mono<*> {
-		tempBans.removeAll(
-			tempBans.stream().filter { banRecord -> banRecord.snowflake == member.id }.toList())
+	fun ban(member: Member, reason: String, duration: Int, author: String): YogResult<Mono<*>?, String?> {
 
 		val banMessage: StringBuilder = StringBuilder("You have been banned from ")
 		banMessage.append(discordConfig.serverName)
-		banMessage.append(" `")
+		banMessage.append(" for `")
 		banMessage.append(reason)
 		banMessage.append("` It will ")
 		if (duration > 0) {
 			banMessage.append("expire in ")
 			banMessage.append(duration)
 			banMessage.append(" minutes.")
-			tempBans.add(BanRecord(member.id, LocalDateTime.now().plusMinutes(duration.toLong())))
 		} else {
 			banMessage.append("not expire.")
 		}
 
-		return member.addRole(Snowflake.of(discordConfig.softBanRole),
+		try {
+			database.yogbotDbConnection.use { connection ->
+				if(duration > 0) {
+					connection.prepareStatement("INSERT INTO bans (discord_id, reason, expires_at) VALUE (?, ?, NOW() + INTERVAL ? MINUTE )").use {
+						it.setLong(1, member.id.asLong())
+						it.setString(2, reason)
+						it.setInt(3, duration)
+						it.execute()
+						if(it.updateCount < 1) {
+							logger.error("Failed to create ban")
+							return YogResult.error("Failed to create ban")
+						}
+					}
+				} else {
+					connection.prepareStatement("INSERT INTO bans (discord_id, reason) VALUE (?, ?)").use {
+						it.setLong(1, member.id.asLong())
+						it.setString(2, reason)
+						it.execute()
+						if(it.updateCount < 1) {
+							return YogResult.error("Failed to create ban")
+						}
+					}
+				}
+			}
+		} catch (e: SQLException) {
+			logger.error("Error applying ban", e)
+			return YogResult.error("Error applying ban")
+		}
+
+		return YogResult.success(member.addRole(
+			softbanRole,
 			"${if (duration <= 0) "Permanent" else "Temporary"} softban by $author for ${reason.trim()}")
 			.and(member.privateChannel
-				.flatMap { privateChannel -> privateChannel.createMessage(banMessage.toString()) })
+				.flatMap { privateChannel -> privateChannel.createMessage(banMessage.toString()) }).and(
+				logChannel.log("${member.username} was banned ${if (duration <= 0) "permanently" else "for $duration minutes"} by $author for $reason")
+				))
 	}
 
-	fun unban(member: Member, reason: String, user: String): Mono<*> {
-		tempBans.removeAll(
-			tempBans.stream().filter { banRecord -> banRecord.snowflake == member.id }.toList())
-		return member.removeRole(Snowflake.of(discordConfig.softBanRole),
-			String.format("Unbanned by %s for %s", user, reason))
+	fun unban(member: Member, reason: String, user: String): YogResult<Mono<*>?, String?> {
+		try {
+			database.yogbotDbConnection.use { connection ->
+				connection.prepareStatement("UPDATE bans SET revoked_at = NOW() WHERE discord_id = ? AND revoked_at IS NULL AND (expires_at > NOW() OR expires_at IS NULL)").use {
+					it.setLong(1, member.id.asLong())
+					it.execute()
+					if (it.updateCount < 1) {
+						return YogResult.error("No bans were modified")
+					}
+				}
+			}
+		} catch (e: SQLException) {
+			logger.error("Error removing ban", e)
+			return YogResult.error("Error removing ban")
+		}
+
+		return YogResult.success(member.removeRole(
+			softbanRole,
+			"Unbanned by $user for $reason").and(logChannel.log("${member.username} was unbanned by $user for $reason"))
+		)
 	}
 
-	data class BanRecord(val snowflake: Snowflake, val expiration: LocalDateTime) {
-		fun hasExpired(): Boolean {
-			return expiration.isBefore(LocalDateTime.now())
+	fun onLogin(member: Member): Mono<*> {
+		try {
+			database.yogbotDbConnection.use { connection ->
+				connection.prepareStatement("SELECT 1 FROM bans WHERE (expires_at > NOW() OR expires_at IS NULL) AND revoked_at IS NULL AND discord_id = ?;").use { statement ->
+					statement.setLong(1, member.id.asLong())
+					statement.executeQuery().use {
+						return if(it.next()) {
+							logChannel.log("${member.displayName} is banned, reapplying the ban role")
+								.and(member.addRole(softbanRole))
+						} else {
+							Mono.empty<Any>()
+						}
+					}
+				}
+			}
+		} catch (e: SQLException) {
+			logger.error("Error checking for bans", e)
+			return logChannel.log("Error checking the ban status of ${member.displayName}.")
 		}
 	}
 }

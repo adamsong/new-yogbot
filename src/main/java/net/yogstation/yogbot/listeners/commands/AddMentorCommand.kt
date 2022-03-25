@@ -23,7 +23,7 @@ class AddMentorCommand(discordConfig: DiscordConfig, permissions: PermissionsMan
 		val target = getTarget(event)
 			?: return DiscordUtil.reply(event, "Correct usage: `${discordConfig.commandPrefix}addmentor <ckey or @Username>`")
 		try {
-			database.connection.use { connection ->
+			database.byondDbConnection.use { connection ->
 				connection.prepareStatement(
 					"SELECT ckey FROM `${database.prefix("mentor")}` WHERE `ckey` = ?;"
 				).use { mentorCheckStmt ->

@@ -14,7 +14,7 @@ class ListAdminsCommand(discordConfig: DiscordConfig, private val database: Data
 ) {
 	override fun doCommand(event: MessageCreateEvent): Mono<*> {
 		try {
-			database.connection.use { connection ->
+			database.byondDbConnection.use { connection ->
 				connection.prepareStatement(String.format("SELECT ckey,`rank` FROM `%s`", database.prefix("admin")))
 					.use { stmt ->
 						val results = stmt.executeQuery()

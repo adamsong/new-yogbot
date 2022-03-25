@@ -18,7 +18,7 @@ class RemoveAOCommand(discordConfig: DiscordConfig, permissions: PermissionsMana
 		val target = getTarget(event)
 			?: return DiscordUtil.reply(event, "Correct usage: `${discordConfig.commandPrefix}removeao <ckey or @Username>`")
 		try {
-			database.connection.use { connection ->
+			database.byondDbConnection.use { connection ->
 				connection.prepareStatement(
 					"DELETE FROM `${database.prefix("admin")}` WHERE `ckey` = ?;"
 				).use { adminSetStmt -> return removeRank(event, target, adminSetStmt, discordConfig.aoRole) }

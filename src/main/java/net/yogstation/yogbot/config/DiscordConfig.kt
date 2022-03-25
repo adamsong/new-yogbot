@@ -11,7 +11,7 @@ class DiscordConfig {
 	var commandPrefix: String = "!"
 
 	var serverName: String = "Yogstation 13"
-	var useLocalCommands: Boolean = false
+	var useLocalCommands: Boolean = true
 
 	var oauthAuthorizeUrl: String = "https://bab.yogstation.net/auth/authorize"
 

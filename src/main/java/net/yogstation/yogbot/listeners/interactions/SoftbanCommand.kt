@@ -10,6 +10,7 @@ import discord4j.core.event.domain.interaction.ModalSubmitInteractionEvent
 import discord4j.core.event.domain.interaction.UserInteractionEvent
 import net.yogstation.yogbot.bans.BanManager
 import net.yogstation.yogbot.permissions.PermissionsManager
+import net.yogstation.yogbot.util.YogResult
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 
@@ -21,7 +22,7 @@ class SoftbanCommand(private val permissions: PermissionsManager, private val ba
 		get() = "Softban"
 
 	override fun handle(event: UserInteractionEvent): Mono<*> {
-		return if (permissions.hasPermission(event.interaction.member.orElse(null), "ban")) event.reply()
+		return if (!permissions.hasPermission(event.interaction.member.orElse(null), "ban")) event.reply()
 			.withEphemeral(true).withContent("You do not have permission to run that command") else event.presentModal()
 			.withCustomId(String.format("%s-%s", idPrefix, event.targetId.asString()))
 			.withTitle("Softban Menu")
@@ -44,7 +45,7 @@ class SoftbanCommand(private val permissions: PermissionsManager, private val ba
 				for (data in component.data.components().get()) {
 					if (data.customId().isAbsent) continue
 					when (data.customId().get()) {
-						"duration" -> duration = if (data.value().isAbsent) -1 else data.value().get().toInt()
+						"duration" -> duration = if (data.value().isAbsent || data.value().get() == "") -1 else data.value().get().toInt()
 						"reason" -> {
 							if (data.value().isAbsent) return event.reply().withContent("Please specify a ban reason")
 							reason = data.value().get()
@@ -59,11 +60,16 @@ class SoftbanCommand(private val permissions: PermissionsManager, private val ba
 			.guild
 			.flatMap { guild: Guild -> guild.getMemberById(toBan) }
 			.flatMap { member: Member? ->
-				banManager.ban(
-					member!!, finalReason, finalDuration,
-					event.interaction.user.username
-				)
-					.and(event.reply().withEphemeral(true).withContent("Ban issued successfully"))
+				if(member == null) event.reply().withEphemeral(true).withContent("Cannot find member")
+				else {
+					val result = banManager.ban(
+						member, finalReason, finalDuration,
+						event.interaction.user.username
+					)
+					if (result.error != null || result.value == null) event.reply().withEphemeral(true)
+						.withContent(result.error ?: "Unknown Error")
+					else result.value.and(event.reply().withEphemeral(true).withContent("Ban issued successfully"))
+				}
 			}
 	}
 }

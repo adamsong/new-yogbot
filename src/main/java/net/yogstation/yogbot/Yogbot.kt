@@ -7,6 +7,7 @@ import discord4j.core.`object`.entity.User
 import discord4j.core.`object`.presence.ClientActivity
 import discord4j.core.`object`.presence.ClientPresence
 import discord4j.core.event.domain.lifecycle.ReadyEvent
+import discord4j.gateway.intent.IntentSet
 import discord4j.rest.RestClient
 import net.yogstation.yogbot.config.DiscordConfig
 import org.reactivestreams.Publisher
@@ -32,6 +33,7 @@ open class Yogbot {
 			.build()
 			.gateway()
 			.setInitialPresence { ClientPresence.online(ClientActivity.playing("I AM A GOD")) }
+			.setEnabledIntents(IntentSet.all())
 			.login()
 			.block() ?: return null
 		client.on(ReadyEvent::class.java, Function<ReadyEvent, Publisher<Any>> { event: ReadyEvent ->

@@ -7,9 +7,9 @@ import java.sql.SQLException
 
 object ByondLinkUtil {
 	private val LOGGER = LoggerFactory.getLogger(ByondLinkUtil::class.java)
-	fun getMemberID(ckey: String, database: DatabaseManager): Result<Snowflake?, String?> {
+	fun getMemberID(ckey: String, database: DatabaseManager): YogResult<Snowflake?, String?> {
 		try {
-			database.connection.use { connection ->
+			database.byondDbConnection.use { connection ->
 				connection.prepareStatement(
 					"SELECT discord_id FROM `${database.prefix("player")}` WHERE `ckey` = ? AND discord_id IS NOT NULL;"
 				).use { playerStmt ->
@@ -17,26 +17,26 @@ object ByondLinkUtil {
 					val playerResults = playerStmt.executeQuery()
 					if (!playerResults.next()) {
 						playerResults.close()
-						return Result.error("No user with this ckey has a linked discord account")
+						return YogResult.error("No user with this ckey has a linked discord account")
 					}
 					val discordID = playerResults.getLong("discord_id")
 					if (playerResults.next()) {
 						playerResults.close()
-						return Result.error("More than 1 of this ckey with a Discord ID, this makes no sense at all!")
+						return YogResult.error("More than 1 of this ckey with a Discord ID, this makes no sense at all!")
 					}
 					playerResults.close()
-					return Result.success(Snowflake.of(discordID))
+					return YogResult.success(Snowflake.of(discordID))
 				}
 			}
 		} catch (e: SQLException) {
 			LOGGER.error("SQL Error", e)
-			return Result.error("A SQL Error has occurred.")
+			return YogResult.error("A SQL Error has occurred.")
 		}
 	}
 
-	fun getCkey(snowflake: Snowflake, database: DatabaseManager): Result<String?, String?> {
+	fun getCkey(snowflake: Snowflake, database: DatabaseManager): YogResult<String?, String?> {
 		try {
-			database.connection.use { connection ->
+			database.byondDbConnection.use { connection ->
 				connection.prepareStatement(
 					"SELECT ckey FROM `${database.prefix("player")}` WHERE `discord_id` = ?"
 				).use { ckeyStmt ->
@@ -44,20 +44,20 @@ object ByondLinkUtil {
 					val ckeyResults = ckeyStmt.executeQuery()
 					if (!ckeyResults.next()) {
 						ckeyResults.close()
-						return Result.error("Cannot find linked byond account.")
+						return YogResult.error("Cannot find linked byond account.")
 					}
 					val ckey = ckeyResults.getString("ckey")
 					if (ckeyResults.next()) {
 						ckeyResults.close()
-						return Result.error("Multiple accounts linked to discord ID")
+						return YogResult.error("Multiple accounts linked to discord ID")
 					}
 					ckeyResults.close()
-					return Result.success(ckey)
+					return YogResult.success(ckey)
 				}
 			}
 		} catch (e: SQLException) {
 			LOGGER.error("Error getting notes", e)
-			return Result.error("A SQL Error has occurred")
+			return YogResult.error("A SQL Error has occurred")
 		}
 	}
 }

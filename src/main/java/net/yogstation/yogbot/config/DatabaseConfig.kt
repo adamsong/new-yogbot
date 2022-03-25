@@ -7,7 +7,8 @@ class DatabaseConfig {
 	// Connection Info, default matches the game server's default
 	var hostname: String = "localhost"
 	var port: Int = 3306
-	var database: String = "feedback"
+	var byondDatabase: String = "feedback"
+	var yogbotDatabase: String = "yogbot"
 	var username: String = "username"
 	var password: String = "password"
 

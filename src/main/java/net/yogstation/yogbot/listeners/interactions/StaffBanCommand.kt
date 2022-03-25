@@ -27,13 +27,13 @@ class StaffBanCommand(private val permissions: PermissionsManager, private val d
 					val roles = member.roleIds
 					if (roles.contains(Snowflake.of(discordConfig.secondWarningRole))) {
 						member.addRole(Snowflake.of(discordConfig.staffPublicBanRole))
-							.and(event.reply().withContent("User was banned from staff public"))
+							.and(event.reply().withContent("${member.mention} was banned from staff public"))
 					} else if (roles.contains(Snowflake.of(discordConfig.firstWarningRole))) {
 						member.addRole(Snowflake.of(discordConfig.secondWarningRole))
-							.and(event.reply().withContent("User was given the second warning role"))
+							.and(event.reply().withContent("${member.mention} was given the second warning role"))
 					} else {
 						member.addRole(Snowflake.of(discordConfig.firstWarningRole))
-							.and(event.reply().withContent("User was given the first warning role"))
+							.and(event.reply().withContent("${member.mention} was given the first warning role"))
 					}
 				}
 			}

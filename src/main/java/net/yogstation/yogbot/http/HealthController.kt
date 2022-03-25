@@ -2,6 +2,7 @@ package net.yogstation.yogbot.http
 
 import discord4j.core.GatewayDiscordClient
 import discord4j.gateway.GatewayClient
+import discord4j.gateway.intent.Intent
 import net.yogstation.yogbot.util.HttpUtil
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -19,6 +20,11 @@ class HealthController(val client: GatewayDiscordClient) {
 	@GetMapping("/health")
 	fun getHealth(): Mono<HttpEntity<String>> {
 		logger.info("Health check begin")
+
+		if(!client.gatewayResources.intents.contains(Intent.GUILD_MEMBERS)) {
+			logger.error("GUILD_MEMBERS intent unavailable")
+			return HttpUtil.response("GUILD_MEMBERS intent required", HttpStatus.SERVICE_UNAVAILABLE)
+		}
 
 		val gatewayGroup = client.gatewayClientGroup
 		val shardCount = gatewayGroup.shardCount

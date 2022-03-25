@@ -16,7 +16,7 @@ abstract class GetNotesCommand(
 ) {
 	protected fun getNotes(ckey: String, showAdmin: Boolean): List<String> {
 		try {
-			database.connection.use { connection ->
+			database.byondDbConnection.use { connection ->
 				connection.prepareStatement(
 					String.format(
 						"SELECT timestamp, text, adminckey FROM `%s` WHERE `targetckey` = ? AND `type`= \"note\" AND deleted = 0 AND (expire_timestamp > NOW() OR expire_timestamp IS NULL) AND `secret` = 0 ORDER BY `timestamp`",

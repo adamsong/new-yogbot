@@ -14,7 +14,7 @@ class ListMentorsCommand(discordConfig: DiscordConfig, private val database: Dat
 ) {
 	override fun doCommand(event: MessageCreateEvent): Mono<*> {
 		try {
-			database.connection.use { connection ->
+			database.byondDbConnection.use { connection ->
 				connection.prepareStatement(String.format("SELECT ckey FROM `%s`", database.prefix("mentor")))
 					.use { stmt ->
 						val results = stmt.executeQuery()

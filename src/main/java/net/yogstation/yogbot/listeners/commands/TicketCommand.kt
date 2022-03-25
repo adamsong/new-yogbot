@@ -59,7 +59,7 @@ class TicketCommand(
 		val roundId = args[2]
 		if (args.size < 4) {
 			try {
-				database.connection.use { connection ->
+				database.byondDbConnection.use { connection ->
 					connection.prepareStatement("""
 					SELECT * FROM (
 						SELECT `tickets`.`ticket_id`, `tickets`.`ckey`, `tickets`.`a_ckey`, `interactions`.`text`,
@@ -99,7 +99,7 @@ class TicketCommand(
 		}
 		val ticketId = args[3]
 		try {
-			database.connection.use { connection ->
+			database.byondDbConnection.use { connection ->
 				connection.prepareStatement("""
 				SELECT `interactions`.`when`, `interactions`.`user`, `interactions`.`text`
 				FROM ${database.prefix("admin_tickets")} as tickets

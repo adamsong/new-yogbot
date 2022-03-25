@@ -57,10 +57,10 @@ class GlobalCommandRegistrar(
 			commands.add(request) //Add to our array list
 		}
 		if (config.useLocalCommands) {
-			logger.info("Loading guild commands")
+			logger.info("Loading ${commands.size} guild commands")
 			applicationService.bulkOverwriteGuildApplicationCommand(applicationId, config.mainGuildID, commands)
-				.doOnNext { logger.debug("Successfully registered Global Commands") }
-				.doOnError { e: Throwable? -> logger.error("Failed to register global commands", e) }
+				.doOnNext { logger.debug("Successfully registered guild Commands") }
+				.doOnError { e: Throwable? -> logger.error("Failed to register guild commands", e) }
 				.subscribe()
 			return
 		}

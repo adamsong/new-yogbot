@@ -66,7 +66,7 @@ JOIN %s as ranklist ON adminlist.rank = ranklist.`rank`;
 	public override fun doCommand(event: MessageCreateEvent): Mono<*> {
 		return try {
 			var action: Mono<*> = Mono.empty<Any>()
-			val conn = database.connection
+			val conn = database.byondDbConnection
 			val activityStatement = conn.createStatement()
 			val activityResults = activityStatement.executeQuery(
 				String.format(

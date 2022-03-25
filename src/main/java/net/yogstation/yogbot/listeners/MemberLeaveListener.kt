@@ -5,17 +5,18 @@ import discord4j.core.GatewayDiscordClient
 import discord4j.core.event.domain.guild.MemberLeaveEvent
 import net.yogstation.yogbot.config.DiscordChannelsConfig
 import net.yogstation.yogbot.util.DiscordUtil
+import net.yogstation.yogbot.util.LogChannel
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 
 @Component
-class MemberLeaveListener(val client: GatewayDiscordClient, val channelsConfig: DiscordChannelsConfig) {
+class MemberLeaveListener(val client: GatewayDiscordClient, private val logChannel: LogChannel) {
 
 	init {
 		client.on(MemberLeaveEvent::class.java) { this.handle(it) }.subscribe()
 	}
 
 	fun handle(event: MemberLeaveEvent): Mono<*> {
-		return DiscordUtil.logToChannel("**${event.user.username}#${event.user.discriminator}** left the server", client, Snowflake.of(channelsConfig.channelPublicLog))
+		return logChannel.log("**${event.user.username}#${event.user.discriminator}** left the server")
 	}
 }

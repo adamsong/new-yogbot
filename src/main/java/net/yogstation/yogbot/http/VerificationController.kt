@@ -9,9 +9,7 @@ import net.yogstation.yogbot.DatabaseManager
 import net.yogstation.yogbot.config.DiscordConfig
 import net.yogstation.yogbot.config.HttpConfig
 import net.yogstation.yogbot.util.StringUtils
-import org.apache.commons.text.StringEscapeUtils
 import org.slf4j.LoggerFactory
-import org.springframework.http.HttpEntity
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -77,7 +75,7 @@ class VerificationController(
 		oauthState.remove(state)
 
 		try {
-			database.connection.use { connection ->
+			database.byondDbConnection.use { connection ->
 				connection.prepareStatement(
 					String.format(
 						"SELECT discord_id FROM `%s` WHERE `ckey` = ?",
