@@ -6,11 +6,9 @@ import discord4j.core.GatewayDiscordClient
 import discord4j.core.`object`.entity.User
 import discord4j.core.`object`.presence.ClientActivity
 import discord4j.core.`object`.presence.ClientPresence
-import discord4j.core.event.domain.lifecycle.DisconnectEvent
 import discord4j.core.event.domain.lifecycle.ReadyEvent
 import discord4j.rest.RestClient
 import net.yogstation.yogbot.config.DiscordConfig
-import net.yogstation.yogbot.http.HealthController
 import org.reactivestreams.Publisher
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -29,7 +27,7 @@ import java.util.function.Function
 @ConfigurationPropertiesScan
 open class Yogbot {
 	@Bean
-	open fun getGatewayDiscordClient(config: DiscordConfig, healthController: HealthController): GatewayDiscordClient? {
+	open fun getGatewayDiscordClient(config: DiscordConfig): GatewayDiscordClient? {
 		val client = DiscordClientBuilder.create(config.botToken)
 			.build()
 			.gateway()
@@ -40,16 +38,8 @@ open class Yogbot {
 			Mono.fromRunnable {
 				val self: User = event.self
 				logger.info("Logged in as {}#{}", self.username, self.discriminator)
-				healthController.discordHasConnected = true
 			}
 		}).subscribe()
-		client.on(
-			DisconnectEvent::class.java,
-			Function<DisconnectEvent, Publisher<Any>> {
-				Mono.fromRunnable {
-					healthController.discordHasConnected = false
-				}
-			}).subscribe()
 		return client
 	}
 
@@ -75,7 +65,7 @@ open class Yogbot {
 
 	@Bean
 	open fun getRestTemplate(): RestTemplate {
-		return RestTemplate();
+		return RestTemplate()
 	}
 
 	private val logger = LoggerFactory.getLogger(Yogbot::class.java)
