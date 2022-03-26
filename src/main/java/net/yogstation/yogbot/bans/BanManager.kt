@@ -19,48 +19,7 @@ import java.sql.SQLException
 @Component
 class BanManager(val client: GatewayDiscordClient, val discordConfig: DiscordConfig, val database: DatabaseManager, private val logChannel: LogChannel) {
 	private val logger: Logger = LoggerFactory.getLogger(this::class.java)
-
 	private val softbanRole = Snowflake.of(discordConfig.softBanRole)
-
-	@Scheduled(fixedRate = 15000)
-	fun checkBans() {
-		if(!client.gatewayResources.intents.contains(Intent.GUILD_MEMBERS)) {
-			logger.error("Unable to process unbans, lacking GUILD_MEMBERS intent")
-			return
-		}
-
-		val guild: Guild? = client.getGuildById(Snowflake.of(discordConfig.mainGuildID)).block()
-		if (guild == null) {
-			logger.error("Unable to locate guild, cannot handle unbans")
-			return
-		}
-
-		val bannedSnowflakes: MutableSet<Snowflake> = HashSet()
-		try {
-			database.yogbotDbConnection.use { connection ->
-				val stmt = connection.createStatement()
-				stmt.use { statement ->
-					statement.executeQuery("SELECT discord_id FROM bans WHERE (expires_at > NOW() OR expires_at IS NULL) AND revoked_at IS NULL;").use { results ->
-						while (results.next()) {
-							bannedSnowflakes.add(Snowflake.of(results.getLong("discord_id")))
-						} } }
-			}
-		} catch (e: SQLException) {
-			logger.error("Error fetching bans", e)
-			return
-		}
-
-		guild.members.flatMap { member ->
-			if(bannedSnowflakes.contains(member.id) != member.roleIds.contains(softbanRole)) {
-				if(bannedSnowflakes.contains(member.id)) {
-					member.addRole(softbanRole, "Reapplying softban").and(logChannel.log("Softban automatically reapplied to ${member.username}"))
-				} else {
-					member.removeRole(softbanRole, "Ban expired").and(logChannel.log("Bans expired for ${member.username}"))
-				}
-			} else
-				Mono.empty<Any>()
-		}.subscribe()
-	}
 
 	fun ban(member: Member, reason: String, duration: Int, author: String): YogResult<Mono<*>?, String?> {
 

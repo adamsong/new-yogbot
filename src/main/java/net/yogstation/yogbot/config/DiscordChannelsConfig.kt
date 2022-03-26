@@ -16,7 +16,7 @@ class DiscordChannelsConfig {
 	var channelAsay: Long = 161564229852332032L
 	var channelMsay: Long = 558809391172812810L
 	var channelMentor: Long = 558823007175573535L
-	var chennlStaffPublic: Long = 186490543398715392L
+	var channelStaffPublic: Long = 186490543398715392L
 	var channelCouncil: Long = 763806714402439229L
 	var channelDevelopmentPublic: Long = 205784753352343552L
 	var channelSpriter: Long = 440551954788253697L
