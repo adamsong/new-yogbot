@@ -43,8 +43,8 @@ class PermissionsManager {
 		addNode(
 			PermissionsNode.builder()
 				.setName("senior admin")
-				.setPerms("addao", "removeao", "addmentor", "removementor")
-				.setParents("staff")
+				.setPerms("addao", "removeao")
+				.setParents("staff", "Head Mentor")
 				.build(this)
 		)
 		addNode(PermissionsNode.builder().setName("head-developer").setParents("senior admin").build(this))

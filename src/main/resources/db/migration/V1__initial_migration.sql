@@ -7,3 +7,8 @@ CREATE TABLE IF NOT EXISTS bans (
     reason VARCHAR(2048)
 );
 
+CREATE TABLE IF NOT EXISTS user_sticky_roles (
+    discord_id BIGINT(20) NOT NULL,
+    role_id BIGINT(20) NOT NULL,
+    PRIMARY KEY (discord_id, role_id)
+)

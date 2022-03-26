@@ -42,4 +42,17 @@ class DiscordChannelsConfig {
 	var channelMentorApplications: Long = 665785215985254420L
 	var channelGithubSpam: Long = 701120514038693938L
 	var channelBugReports: Long = 773277250090434640L
+
+	private val adminChannels: Set<Long> by lazy {
+		setOf(
+			channelAdmemes,
+			channelAdmin,
+			channelCouncil,
+			channelAdminBotspam
+		)
+	}
+
+	fun isAdminChannel(channelID: Long): Boolean {
+		return adminChannels.contains(channelID)
+	}
 }

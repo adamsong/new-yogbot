@@ -6,7 +6,6 @@ import net.yogstation.yogbot.config.DiscordChannelsConfig
 import discord4j.core.event.domain.message.MessageCreateEvent
 import reactor.core.publisher.Mono
 import discord4j.common.util.Snowflake
-import net.yogstation.yogbot.util.ChannelUtil
 import net.yogstation.yogbot.util.DiscordUtil
 
 class AdminWhoCommand(
@@ -27,7 +26,7 @@ class AdminWhoCommand(
 			channelsConfig: DiscordChannelsConfig
 		): String {
 			var byondMessage = "?adminwho"
-			if (ChannelUtil.isAdminChannel(channelID.asLong(), channelsConfig)) byondMessage += "&adminchannel=1"
+			if (channelsConfig.isAdminChannel(channelID.asLong())) byondMessage += "&adminchannel=1"
 			val result = byondConnector.request(byondMessage)
 			var admins = (if (result.hasError()) result.error else result.value) as String
 			admins = admins.replace("\u0000".toRegex(), "")

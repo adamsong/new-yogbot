@@ -6,9 +6,12 @@ import discord4j.core.`object`.entity.channel.MessageChannel
 import discord4j.core.event.domain.message.MessageCreateEvent
 import discord4j.core.spec.EmbedCreateSpec
 import discord4j.core.spec.MessageCreateSpec
+import net.yogstation.yogbot.config.DiscordChannelsConfig
+import net.yogstation.yogbot.config.DiscordConfig
 import reactor.core.publisher.Mono
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.HashSet
 
 object DiscordUtil {
 	fun reply(event: MessageCreateEvent, message: String): Mono<*> {

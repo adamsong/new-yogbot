@@ -42,4 +42,42 @@ class DiscordConfig {
 	var firstWarningRole: Long = 514066643119505408L
 	var secondWarningRole: Long = 514066798216347662L
 	var staffPublicBanRole: Long = 290926097028218884L
+
+	var cannotAnnounceRole: Long = 782372452017242223L
+	var staffCouncilBanRole: Long = 290926097028218884L
+	var cmBanRole: Long = 716362941586210897L
+	var townhallBanRole: Long = 701505626928578590L
+	var devBanRole: Long = 626436186054852608L
+	var mutedRole: Long = 532336604748972056L
+	var cantReactInStaffPublicRole: Long = 603027738843938840L
+	var purgedRole: Long = 696476134141067294L
+	var unemojiworthyRole: Long = 700535019357208608L
+	var reactionlessRole: Long = 705547660639207435L
+	var quickfireBanRole: Long = 730094500571250718L
+
+
+	private val stickyRoles: Set<Long> by lazy {
+		setOf(
+			cannotAnnounceRole,
+			staffPublicBanRole,
+			staffCouncilBanRole,
+			cmBanRole,
+			townhallBanRole,
+			loreBanRole,
+			devBanRole,
+			mentorBanRole,
+			firstWarningRole,
+			secondWarningRole,
+			mutedRole,
+			cantReactInStaffPublicRole,
+			purgedRole,
+			unemojiworthyRole,
+			reactionlessRole,
+			quickfireBanRole
+		)
+	}
+
+	fun isStickyRole(roleID: Long): Boolean {
+		return stickyRoles.contains(roleID)
+	}
 }
