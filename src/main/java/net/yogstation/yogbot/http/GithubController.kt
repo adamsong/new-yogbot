@@ -6,15 +6,49 @@ import discord4j.core.`object`.entity.channel.MessageChannel
 import discord4j.core.spec.EmbedCreateSpec
 import discord4j.rest.util.Color
 import net.yogstation.yogbot.config.GithubConfig
+import net.yogstation.yogbot.util.HttpUtil
+import net.yogstation.yogbot.util.StringUtils
 import net.yogstation.yogbot.util.YogResult
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+import org.springframework.http.HttpEntity
 import org.springframework.http.HttpStatus
-import org.springframework.stereotype.Component
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestHeader
+import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
 import java.net.URI
+import java.security.MessageDigest
+import javax.crypto.Mac
+import javax.crypto.spec.SecretKeySpec
 
-@Component
+@RestController
 class GithubController(private val webClient: WebClient, private val mapper: ObjectMapper, private val githubConfig: GithubConfig) {
+	private val logger: Logger = LoggerFactory.getLogger(javaClass)
+	private val keySpec: SecretKeySpec = SecretKeySpec(githubConfig.hmac.encodeToByteArray(), "HmacSHA256")
+	private val mac: Mac = Mac.getInstance("HmacSHA256")
+
+	init {
+		mac.init(keySpec)
+	}
+
+	@PostMapping("/github")
+	fun handleWebhook(@RequestBody data: String, @RequestHeader("X-Hub-Signature-256") hash: String, @RequestHeader("X-Github-Event") event: String): Mono<HttpEntity<String>> {
+		if(!verifySignature(data, hash)) return HttpUtil.badRequest("Hash Incorrect")
+		if(event == "ping") return HttpUtil.ok("pong")
+		val jsonData: JsonNode = mapper.readTree(data)
+		if(event == "pull_request") {
+
+		}
+		return HttpUtil.ok("Request processed")
+	}
+
+	private fun verifySignature(data: String, hash: String): Boolean {
+		val signature = "sha256=${StringUtils.bytesToHex(mac.doFinal(data.encodeToByteArray()))}".lowercase()
+		return MessageDigest.isEqual(signature.encodeToByteArray(), hash.encodeToByteArray())
+	}
 
 	fun postPR(channel: MessageChannel, prNumber: String): Mono<*> {
 
@@ -26,12 +60,10 @@ class GithubController(private val webClient: WebClient, private val mapper: Obj
 					.then(Mono.empty())
 			})
 			.toEntity(String::class.java)
-			.flatMap { prEntity -> if(prEntity.statusCode.is2xxSuccessful) channel.createMessage(getPrEmbed(prEntity.body)) else Mono.empty<Any>()}
+			.flatMap { prEntity -> if(prEntity.statusCode.is2xxSuccessful) channel.createMessage(getPrEmbed(mapper.readTree(prEntity.body))) else Mono.empty<Any>()}
 	}
 
-	private fun getPrEmbed(jsonData: String?): EmbedCreateSpec {
-		if (jsonData == null) return EmbedCreateSpec.create().withTitle("PR data is null")
-		val data = mapper.readTree(jsonData)
+	private fun getPrEmbed(data: JsonNode): EmbedCreateSpec {
 		if (data.get("message") != null) return EmbedCreateSpec.create().withTitle("Unable to get PR")
 		val changelog = compileChangelog(data)
 
