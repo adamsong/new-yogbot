@@ -18,9 +18,9 @@ class GithubController(private val webClient: WebClient, private val mapper: Obj
 
 	fun postPR(channel: MessageChannel, prNumber: String): Mono<*> {
 
-		return makeRequest("https://api.github.com/repos/yogstation13/Yogstation/pulls/$prNumber")
+		return makeRequest("${githubConfig.repoLink}/pulls/$prNumber")
 			.onStatus( { responseCode -> responseCode == HttpStatus.NOT_FOUND }, {
-				makeRequest("https://api.github.com/repos/yogstation13/Yogstation/issues/$prNumber")
+				makeRequest("${githubConfig.repoLink}/issues/$prNumber")
 					.toEntity(String::class.java)
 					.flatMap { issueEntity -> channel.createMessage(getIssueEmbed(issueEntity.body)) }
 					.then(Mono.empty())
@@ -166,7 +166,7 @@ class GithubController(private val webClient: WebClient, private val mapper: Obj
 			.uri(URI.create(uri))
 			.header("User-Agent", "Yogbot13")
 		if(githubConfig.token != "") {
-			clientRequest.header("Authorization", "Token ${githubConfig.token}")
+			clientRequest.header("Authorization", "token ${githubConfig.token}")
 		}
 		return clientRequest.retrieve()
 	}

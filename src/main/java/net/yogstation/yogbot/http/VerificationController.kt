@@ -157,10 +157,14 @@ class VerificationController(
 		bodyValues.add("code", code)
 		bodyValues.add("redirect_uri", "${httpConfig.publicPath}api/callback")
 
-		return webClient.post().uri(URI.create(discordConfig.oauthTokenUrl))
+		return webClient.post()
+			.uri(URI.create(discordConfig.oauthTokenUrl))
 			.headers { headers -> headers.setBasicAuth(discordConfig.oauthClientId, discordConfig.oauthClientSecret) }
-			.contentType(MediaType.APPLICATION_FORM_URLENCODED).body(BodyInserters.fromFormData(bodyValues)).retrieve()
-			.bodyToMono(String::class.java).flatMap { token: String -> useToken(token, identity, state, model) }
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.body(BodyInserters.fromFormData(bodyValues))
+			.retrieve()
+			.bodyToMono(String::class.java)
+			.flatMap { token: String -> useToken(token, identity, state, model) }
 	}
 
 	private fun useToken(

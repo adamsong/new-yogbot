@@ -8,4 +8,5 @@ import org.springframework.boot.context.properties.ConstructorBinding
 class GithubConfig {
 	var hmac = ""
 	var token = ""
+	var repoLink = "https://api.github.com/repos/yogstation13/Yogstation"
 }
