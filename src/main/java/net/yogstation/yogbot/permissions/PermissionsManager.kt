@@ -14,7 +14,7 @@ class PermissionsManager {
 		addNode(PermissionsNode.builder().setName("Lore Team").setPerms("loreban").build(this))
 		addNode(PermissionsNode.builder().setName("subscriber").setPerms("unsubscribe").build(this))
 		addNode(PermissionsNode.builder().setName("YogPost").setPerms("post").build(this))
-		addNode(PermissionsNode.builder().setName("mentor").setPerms("mehlp", "listmentors").build(this))
+		addNode(PermissionsNode.builder().setName("mentor").setPerms("mhelp", "listmentors").build(this))
 		addNode(
 			PermissionsNode.builder()
 				.setName("Head Mentor")

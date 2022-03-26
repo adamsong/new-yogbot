@@ -9,7 +9,10 @@ import discord4j.core.GatewayDiscordClient
 import discord4j.core.`object`.entity.Member
 import discord4j.rest.util.Image
 import net.yogstation.yogbot.DatabaseManager
+import net.yogstation.yogbot.config.ByondConfig
 import net.yogstation.yogbot.config.DiscordConfig
+import net.yogstation.yogbot.http.ByondEndpoint
+import net.yogstation.yogbot.http.byond.payloads.CkeyMessagePayload
 import net.yogstation.yogbot.util.ByondLinkUtil
 import net.yogstation.yogbot.util.HttpUtil
 import net.yogstation.yogbot.util.StringUtils
@@ -25,21 +28,17 @@ import java.net.URI
 
 abstract class DiscordWebhookEndpoint(
 	private val webClient: WebClient, protected val mapper: ObjectMapper, protected val database: DatabaseManager,
-	protected val client: GatewayDiscordClient, protected val discordConfig: DiscordConfig) : IByondEndpoint {
+	protected val client: GatewayDiscordClient, protected val discordConfig: DiscordConfig, byondConfig: ByondConfig) : ByondEndpoint(byondConfig) {
 	protected val logger: Logger = LoggerFactory.getLogger(javaClass)
 
 	protected abstract val webhookUrl: String
 
-	override fun receiveData(data: JsonNode): Mono<HttpEntity<String>> {
-		val ckey = data["ckey"]
-		val message = data["message"]
-		if (ckey == null) return HttpUtil.badRequest("Missing ckey")
-		if (message == null) return HttpUtil.badRequest("Missing message")
+	fun handleData(data: CkeyMessagePayload): Mono<HttpEntity<String>> {
 		val node = mapper.createObjectNode()
-		node.set<JsonNode>("username", ckey)
-		node.set<JsonNode>("content", message)
+		node.put("username", data.ckey)
+		node.put("content", data.message)
 		node.set<JsonNode>("allowed_mentions", mapper.createObjectNode().set("parse", mapper.createArrayNode()))
-		val result = ByondLinkUtil.getMemberID(StringUtils.ckeyIze(ckey.asText().split("/").toTypedArray()[0]), database)
+		val result = ByondLinkUtil.getMemberID(StringUtils.ckeyIze(data.ckey.split("/").toTypedArray()[0]), database)
 		return if (result.hasValue()) {
 			client.getMemberById(Snowflake.of(discordConfig.mainGuildID), result.value!!).flatMap { member: Member ->
 				val animated = member.hasAnimatedGuildAvatar()

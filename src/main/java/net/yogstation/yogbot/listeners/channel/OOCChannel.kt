@@ -11,9 +11,9 @@ import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
 @Component
-class MSayChannel(channelsConfig: DiscordChannelsConfig, byondConnector: ByondConnector) : RelayChannel (
+class OOCChannel(channelsConfig: DiscordChannelsConfig, byondConnector: ByondConnector) : RelayChannel (
 	channelsConfig, byondConnector
 ) {
-	override val channel: Snowflake = Snowflake.of(channelsConfig.channelMsay)
-	override val method: String = "msay"
+	override val channel: Snowflake = Snowflake.of(channelsConfig.channelOOC)
+	override val method: String = "ooc"
 }
