@@ -28,7 +28,7 @@ class RoleUpdater(
 	private val donorRole = Snowflake.of(discordConfig.donorRole)
 	private val verificationRole = Snowflake.of(discordConfig.byondVerificationRole)
 
-	@Scheduled(fixedRate = 15000)
+	@Scheduled(fixedRate = 60000)
 	fun handleDonor() {
 		if (!client.gatewayResources.intents.contains(Intent.GUILD_MEMBERS)) {
 			logger.error("Unable to process unbans and donors, lacking GUILD_MEMBERS intent")

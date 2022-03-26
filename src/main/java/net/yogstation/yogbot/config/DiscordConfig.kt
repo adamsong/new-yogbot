@@ -35,6 +35,8 @@ class DiscordConfig {
 
 	var donorRole: Long = 229547035047624704L
 
+	var staffRole: Long = 134721069943619584L
+
 	// Punishment Roles
 	var softBanRole: Long = 302093934551629827L
 	var loreBanRole: Long = 716784185192480798L
