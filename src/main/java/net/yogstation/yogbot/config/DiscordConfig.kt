@@ -60,6 +60,7 @@ class DiscordConfig {
 	var quickfireBanRole: Long = 730094500571250718L
 
 
+	// Softbans are not handled via sticky roles
 	private val stickyRoles: Set<Long> by lazy {
 		setOf(
 			cannotAnnounceRole,
@@ -81,6 +82,9 @@ class DiscordConfig {
 		)
 	}
 
+	/**
+	 * Checks if the given role is a sticky role
+	 */
 	fun isStickyRole(roleID: Long): Boolean {
 		return stickyRoles.contains(roleID)
 	}

@@ -1,9 +1,8 @@
 package net.yogstation.yogbot.listeners.commands
 
+import discord4j.common.util.Snowflake
 import net.yogstation.yogbot.config.DiscordConfig
 import net.yogstation.yogbot.permissions.PermissionsManager
-import net.yogstation.yogbot.listeners.commands.ChannelBanCommand
-import discord4j.common.util.Snowflake
 import org.springframework.stereotype.Component
 
 @Component

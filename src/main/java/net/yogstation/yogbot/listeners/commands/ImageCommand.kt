@@ -1,11 +1,11 @@
 package net.yogstation.yogbot.listeners.commands
 
-import net.yogstation.yogbot.config.DiscordConfig
 import discord4j.core.event.domain.message.MessageCreateEvent
-import reactor.core.publisher.Mono
 import discord4j.core.spec.EmbedCreateSpec
 import discord4j.rest.util.Color
+import net.yogstation.yogbot.config.DiscordConfig
 import net.yogstation.yogbot.util.DiscordUtil
+import reactor.core.publisher.Mono
 import java.util.*
 
 abstract class ImageCommand(discordConfig: DiscordConfig, protected val random: Random) : TextCommand(

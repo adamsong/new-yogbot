@@ -30,7 +30,10 @@ class ReviewCommand(
 
 	override fun doCommand(event: MessageCreateEvent): Mono<*> {
 		val args = event.message.content.split(" ").toTypedArray()
-		if (args.size < 2) return DiscordUtil.reply(event, "Usage is: `${discordConfig.commandPrefix}review <ckey> [strict]`")
+		if (args.size < 2) return DiscordUtil.reply(
+			event,
+			"Usage is: `${discordConfig.commandPrefix}review <ckey> [strict]`"
+		)
 		val ckey = StringUtils.ckeyIze(args[1])
 		val strict = event.message
 			.channelId

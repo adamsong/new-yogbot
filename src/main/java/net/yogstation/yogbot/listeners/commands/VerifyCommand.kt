@@ -18,7 +18,10 @@ class VerifyCommand(
 ) : TextCommand(discordConfig) {
 	private val random = SecureRandom()
 	override fun doCommand(event: MessageCreateEvent): Mono<*> {
-		if(discordConfig.oauthClientId == "") return DiscordUtil.reply(event, "Verification command is not configured.")
+		if (discordConfig.oauthClientId == "") return DiscordUtil.reply(
+			event,
+			"Verification command is not configured."
+		)
 		val args = event.message.content.split(" ")
 		if (args.size < 2) return DiscordUtil.reply(event, "Usage: `${args[0]} <ckey>`")
 		val ckey = StringUtils.ckeyIze(args.subList(1, args.size).joinToString(""))
@@ -35,7 +38,8 @@ class VerifyCommand(
 			author.get().tag
 		)
 		return DiscordUtil.reply(
-			event, "Click the following link to complete the linking process: ${httpConfig.publicPath}api/verify?state=$state"
+			event,
+			"Click the following link to complete the linking process: ${httpConfig.publicPath}api/verify?state=$state"
 		)
 	}
 

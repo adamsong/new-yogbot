@@ -59,7 +59,13 @@ class RoleUpdater(
 			databaseManager.byondDbConnection.use { connection ->
 				val stmt = connection.createStatement()
 				stmt.use { statement ->
-					statement.executeQuery("SELECT DISTINCT player.discord_id FROM ${databaseManager.prefix("player")} as player JOIN ${databaseManager.prefix("donors")} donor on player.ckey = donor.ckey WHERE (expiration_time > NOW()) AND revoked IS NULL;")
+					statement.executeQuery(
+						"SELECT DISTINCT player.discord_id FROM ${databaseManager.prefix("player")} as player JOIN ${
+							databaseManager.prefix(
+								"donors"
+							)
+						} donor on player.ckey = donor.ckey WHERE (expiration_time > NOW()) AND revoked IS NULL;"
+					)
 						.use { results ->
 							while (results.next()) {
 								donorSnowflakes.add(Snowflake.of(results.getLong("discord_id")))
@@ -85,7 +91,8 @@ class RoleUpdater(
 
 		guild.members.flatMap { member ->
 			updateRole(bannedSnowflakes, member, softbanRole, {
-				it.addRole(softbanRole, "Reapplying softban").and(logChannel.log("Softban automatically reapplied to ${it.username}"))
+				it.addRole(softbanRole, "Reapplying softban")
+					.and(logChannel.log("Softban automatically reapplied to ${it.username}"))
 			}) {
 				it.removeRole(softbanRole, "Ban expired").and(logChannel.log("Bans expired for ${it.username}"))
 			}.and(

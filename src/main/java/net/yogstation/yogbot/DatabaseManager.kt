@@ -1,10 +1,9 @@
 package net.yogstation.yogbot
 
-import net.yogstation.yogbot.config.DatabaseConfig
 import com.mysql.cj.jdbc.MysqlConnectionPoolDataSource
+import net.yogstation.yogbot.config.DatabaseConfig
 import org.springframework.stereotype.Component
 import java.sql.Connection
-import kotlin.Throws
 import java.sql.SQLException
 
 @Component

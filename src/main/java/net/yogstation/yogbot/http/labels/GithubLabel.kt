@@ -3,9 +3,25 @@ package net.yogstation.yogbot.http.labels
 import com.fasterxml.jackson.databind.JsonNode
 import net.yogstation.yogbot.http.GithubController
 
+/**
+ * The superclass of all labels, should handle most logic fine
+ * Either changelogTypes or matchExtensions need overridden,
+ * or the default logic need replaced to prevent the label from always being true
+ */
 abstract class GithubLabel {
+	/**
+	 * The name of the label to apply
+	 */
 	abstract val label: String
+
+	/**
+	 * The changelog entry types that should trigger this label
+	 */
 	protected open val changelogTypes: List<String> = listOf()
+
+	/**
+	 * The file extensions that should trigger this label
+	 */
 	protected open val matchExtensions: List<String> = listOf()
 
 	protected open fun isMatch(eventData: JsonNode): Boolean {

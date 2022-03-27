@@ -1,17 +1,16 @@
 package net.yogstation.yogbot.listeners.commands
 
-import net.yogstation.yogbot.config.DiscordConfig
-import net.yogstation.yogbot.permissions.PermissionsManager
-import net.yogstation.yogbot.DatabaseManager
-import kotlin.Throws
-import java.sql.SQLException
-import discord4j.core.event.domain.message.MessageCreateEvent
-import java.sql.PreparedStatement
-import reactor.core.publisher.Mono
 import discord4j.common.util.Snowflake
 import discord4j.core.`object`.entity.Guild
 import discord4j.core.`object`.entity.Member
+import discord4j.core.event.domain.message.MessageCreateEvent
+import net.yogstation.yogbot.DatabaseManager
+import net.yogstation.yogbot.config.DiscordConfig
+import net.yogstation.yogbot.permissions.PermissionsManager
 import net.yogstation.yogbot.util.DiscordUtil
+import reactor.core.publisher.Mono
+import java.sql.PreparedStatement
+import java.sql.SQLException
 
 abstract class EditRankCommand(
 	discordConfig: DiscordConfig,

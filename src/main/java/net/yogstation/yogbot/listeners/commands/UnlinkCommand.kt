@@ -18,7 +18,8 @@ class UnlinkCommand(discordConfig: DiscordConfig, private val byondConnector: By
 		if (args.size < 2) return DiscordUtil.reply(event, "Usage: `${args[0]} <ckey>`")
 		val requestResult =
 			byondConnector.request(String.format("?unlink=%s", URLEncoder.encode(args[1], StandardCharsets.UTF_8)))
-		val message: String = if (requestResult.hasError()) requestResult.error ?: "Unknown Error" else (requestResult.value as String).replace(
+		val message: String = if (requestResult.hasError()) requestResult.error
+			?: "Unknown Error" else (requestResult.value as String).replace(
 			"\u0000".toRegex(),
 			""
 		)

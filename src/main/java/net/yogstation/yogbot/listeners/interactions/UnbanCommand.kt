@@ -53,7 +53,8 @@ class UnbanCommand(private val permissions: PermissionsManager, private val banM
 				val result = banManager.unban(
 					member!!, finalReason, event.interaction.user.username
 				)
-				if(result.error != null || result.value == null) event.reply().withEphemeral(true).withContent(result.error ?: "Unknown Error")
+				if (result.error != null || result.value == null) event.reply().withEphemeral(true)
+					.withContent(result.error ?: "Unknown Error")
 				else result.value.and(event.reply().withEphemeral(true).withContent("Ban issued successfully"))
 			}
 	}

@@ -17,11 +17,11 @@ import reactor.core.publisher.Mono
 class HealthController(val client: GatewayDiscordClient) {
 	private val logger: Logger = LoggerFactory.getLogger(javaClass)
 
-	@GetMapping("/health")
+	@GetMapping("/api/health")
 	fun getHealth(): Mono<HttpEntity<String>> {
 		logger.info("Health check begin")
 
-		if(!client.gatewayResources.intents.contains(Intent.GUILD_MEMBERS)) {
+		if (!client.gatewayResources.intents.contains(Intent.GUILD_MEMBERS)) {
 			logger.error("GUILD_MEMBERS intent unavailable")
 			return HttpUtil.response("GUILD_MEMBERS intent required", HttpStatus.SERVICE_UNAVAILABLE)
 		}
@@ -32,24 +32,28 @@ class HealthController(val client: GatewayDiscordClient) {
 		logger.info("Checking the health of the $shardCount shards")
 
 		val shards: MutableList<GatewayClient> = ArrayList()
-		for(i in 0 until shardCount) {
+		for (i in 0 until shardCount) {
 			val shard = gatewayGroup.find(i).orElse(null) ?: continue
 			shards.add(shard)
 		}
 
-		if(shards.size < shardCount) {
+		if (shards.size < shardCount) {
 			logger.error("Only located {}/{} shards", shards.size, shardCount)
-			return HttpUtil.response("${shardCount - shards.size} Shards are unavailable", HttpStatus.SERVICE_UNAVAILABLE)
+			return HttpUtil.response(
+				"${shardCount - shards.size} Shards are unavailable",
+				HttpStatus.SERVICE_UNAVAILABLE
+			)
 		}
 
-		return Flux.fromIterable(shards).filterWhen { gatewayClient -> gatewayClient.isConnected.map { !it } }.count().flatMap { disconnectCount ->
-			if(disconnectCount > 0) {
-				logger.error("There are $disconnectCount shards not connected")
-				HttpUtil.response("$disconnectCount shards are disconnected", HttpStatus.SERVICE_UNAVAILABLE)
-			} else {
-				logger.info("All shards working as intended")
-				HttpUtil.ok("All shards running normally")
+		return Flux.fromIterable(shards).filterWhen { gatewayClient -> gatewayClient.isConnected.map { !it } }.count()
+			.flatMap { disconnectCount ->
+				if (disconnectCount > 0) {
+					logger.error("There are $disconnectCount shards not connected")
+					HttpUtil.response("$disconnectCount shards are disconnected", HttpStatus.SERVICE_UNAVAILABLE)
+				} else {
+					logger.info("All shards working as intended")
+					HttpUtil.ok("All shards running normally")
+				}
 			}
-		}
 	}
 }

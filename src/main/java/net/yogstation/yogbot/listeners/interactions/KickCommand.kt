@@ -26,15 +26,17 @@ class KickCommand(private val permissions: PermissionsManager) : IUserCommand, I
 			.withContent("You cannot kick yourself") else event.targetUser
 			.flatMap { user: User ->
 				user.asMember(event.interaction.guildId.get()).flatMap { member: Member? ->
-						if (permissions.hasPermission(member, "kick")) event.reply().withEphemeral(true)
-							.withContent("Cannot kick staff")
-						else event.presentModal()
-							.withCustomId(String.format("%s-%s", idPrefix, event.targetId.asString()))
-							.withTitle("Kick Menu")
-							.withComponents(ActionRow.of(
-								TextInput.paragraph("reason", "Kick Reason"))
+					if (permissions.hasPermission(member, "kick")) event.reply().withEphemeral(true)
+						.withContent("Cannot kick staff")
+					else event.presentModal()
+						.withCustomId(String.format("%s-%s", idPrefix, event.targetId.asString()))
+						.withTitle("Kick Menu")
+						.withComponents(
+							ActionRow.of(
+								TextInput.paragraph("reason", "Kick Reason")
 							)
-					}
+						)
+				}
 			}
 	}
 

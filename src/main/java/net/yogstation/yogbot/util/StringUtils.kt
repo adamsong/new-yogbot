@@ -5,7 +5,6 @@ import java.nio.charset.StandardCharsets
 import java.util.*
 import java.util.AbstractMap.SimpleImmutableEntry
 import java.util.stream.Collectors
-import kotlin.experimental.and
 
 object StringUtils {
 	// Taken from https://stackoverflow.com/a/8155547 then modified
@@ -29,7 +28,13 @@ object StringUtils {
 		return url.split("&")
 			.map(StringUtils::splitQueryParameter)
 			.stream()
-			.collect(Collectors.groupingBy(SimpleImmutableEntry<String, String>::key, ::LinkedHashMap, Collectors.mapping(Map.Entry<String, String>::value, Collectors.toList())))
+			.collect(
+				Collectors.groupingBy(
+					SimpleImmutableEntry<String, String>::key,
+					::LinkedHashMap,
+					Collectors.mapping(Map.Entry<String, String>::value, Collectors.toList())
+				)
+			)
 	}
 
 	private fun splitQueryParameter(it: String): SimpleImmutableEntry<String, String> {

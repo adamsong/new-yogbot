@@ -1,10 +1,10 @@
 package net.yogstation.yogbot.listeners.commands
 
-import net.yogstation.yogbot.config.DiscordConfig
-import net.yogstation.yogbot.permissions.PermissionsManager
 import discord4j.common.util.Snowflake
 import discord4j.core.`object`.entity.PartialMember
 import discord4j.core.event.domain.message.MessageCreateEvent
+import net.yogstation.yogbot.config.DiscordConfig
+import net.yogstation.yogbot.permissions.PermissionsManager
 import net.yogstation.yogbot.util.DiscordUtil
 import reactor.core.publisher.Mono
 

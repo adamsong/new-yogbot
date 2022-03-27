@@ -19,7 +19,10 @@ class WhoIsCommand(
 ) {
 	override fun doCommand(event: MessageCreateEvent): Mono<*> {
 		val target =
-			getTarget(event) ?: return DiscordUtil.reply(event, "Usage: `${discordConfig.commandPrefix}whois <@Username|ckey>")
+			getTarget(event) ?: return DiscordUtil.reply(
+				event,
+				"Usage: `${discordConfig.commandPrefix}whois <@Username|ckey>"
+			)
 		val error = target.populate(database)
 		if (error != null) return DiscordUtil.reply(event, error)
 		val snowflake: Snowflake = target.snowflake ?: return DiscordUtil.reply(event, "Error getting discord id")

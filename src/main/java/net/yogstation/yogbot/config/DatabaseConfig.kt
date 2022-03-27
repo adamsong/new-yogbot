@@ -12,5 +12,6 @@ class DatabaseConfig {
 	var username: String = "username"
 	var password: String = "password"
 
+	// Database prefix
 	var prefix: String = "SS13_"
 }

@@ -5,27 +5,30 @@ import discord4j.core.GatewayDiscordClient
 import net.yogstation.yogbot.DatabaseManager
 import net.yogstation.yogbot.config.ByondConfig
 import net.yogstation.yogbot.config.DiscordConfig
-import net.yogstation.yogbot.http.byond.payloads.CkeyMessagePayload
+import net.yogstation.yogbot.http.byond.payloads.CkeyMessageDTO
 import org.springframework.http.HttpEntity
-import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
 
+/**
+ * Relays ingame msay messages to the msay channel via webhook
+ */
 @RestController
-class MSayMessageEndpoint(webClient: WebClient, mapper: ObjectMapper, database: DatabaseManager,
-						  client: GatewayDiscordClient, discordConfig: DiscordConfig, byondConfig: ByondConfig
+class MSayMessageEndpoint(
+	webClient: WebClient, mapper: ObjectMapper, database: DatabaseManager,
+	client: GatewayDiscordClient, discordConfig: DiscordConfig, byondConfig: ByondConfig
 ) : DiscordWebhookEndpoint(webClient, mapper, database, client, discordConfig, byondConfig) {
 
 	override val webhookUrl: String
 		get() = discordConfig.msayWebhookUrl
 
 	@PostMapping("/byond/msaymessage")
-	fun handleMsayMessage(@RequestBody payload: CkeyMessagePayload): Mono<HttpEntity<String>> {
+	fun handleMsayMessage(@RequestBody payload: CkeyMessageDTO): Mono<HttpEntity<String>> {
 		val keyError = validateKey(payload.key);
-		if(keyError != null) return keyError;
+		if (keyError != null) return keyError;
 
 		return handleData(payload)
 	}

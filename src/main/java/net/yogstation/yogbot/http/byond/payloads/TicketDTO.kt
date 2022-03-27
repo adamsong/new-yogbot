@@ -2,7 +2,7 @@ package net.yogstation.yogbot.http.byond.payloads
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
-class TicketPayload(
+class TicketDTO(
 	@JsonProperty("key") val key: String,
 	@JsonProperty("ticketid") val ticketId: String,
 	@JsonProperty("message") val message: String,

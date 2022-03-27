@@ -74,8 +74,8 @@ class PermissionsManager {
 	 * @return If the member has permission
 	 */
 	fun hasPermission(member: Member?, requiredPermission: String?): Boolean {
-		if(requiredPermission == null) return true
-		if(member == null) return false
+		if (requiredPermission == null) return true
+		if (member == null) return false
 		return member.roles.any { role: Role ->
 			val node = getNodeFor(role.name) ?: return@any false
 			node.hasPermission(requiredPermission)

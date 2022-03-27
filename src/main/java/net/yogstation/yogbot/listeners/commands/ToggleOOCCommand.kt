@@ -16,7 +16,9 @@ class ToggleOOCCommand(discordConfig: DiscordConfig, private val byondConnector:
 		return if (result.hasError()) DiscordUtil.reply(event, result.error ?: "Unknown Error") else DiscordUtil.reply(
 			event,
 			"OOC has been ${
-			if ((result.value as Float).toInt() == 1) "enabled" else "disabled"}")
+				if ((result.value as Float).toInt() == 1) "enabled" else "disabled"
+			}"
+		)
 	}
 
 	override val description = "Toggles server OOC."

@@ -16,7 +16,10 @@ class RemoveMentorCommand(discordConfig: DiscordConfig, permissions: Permissions
 	) {
 	override fun doCommand(event: MessageCreateEvent): Mono<*> {
 		val target = getTarget(event)
-			?: return DiscordUtil.reply(event, "Correct usage: `${discordConfig.commandPrefix}removementor <ckey or @Username>`")
+			?: return DiscordUtil.reply(
+				event,
+				"Correct usage: `${discordConfig.commandPrefix}removementor <ckey or @Username>`"
+			)
 		try {
 			database.byondDbConnection.use { connection ->
 				connection.prepareStatement(

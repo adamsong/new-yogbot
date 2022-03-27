@@ -1,13 +1,12 @@
 package net.yogstation.yogbot.listeners.commands
 
+import discord4j.core.event.domain.message.MessageCreateEvent
+import net.yogstation.yogbot.DatabaseManager
 import net.yogstation.yogbot.config.DiscordConfig
 import net.yogstation.yogbot.permissions.PermissionsManager
-import net.yogstation.yogbot.DatabaseManager
-import discord4j.core.event.domain.message.MessageCreateEvent
 import net.yogstation.yogbot.util.DiscordUtil
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
-import java.lang.StringBuilder
 import java.sql.SQLException
 
 @Component
@@ -60,7 +59,8 @@ class TicketCommand(
 		if (args.size < 4) {
 			try {
 				database.byondDbConnection.use { connection ->
-					connection.prepareStatement("""
+					connection.prepareStatement(
+						"""
 					SELECT * FROM (
 						SELECT `tickets`.`ticket_id`, `tickets`.`ckey`, `tickets`.`a_ckey`, `interactions`.`text`,
 						RANK() OVER (PARTITION BY `tickets`.`ticket_id` ORDER BY `interactions`.`id`) as `rank`
@@ -87,7 +87,10 @@ class TicketCommand(
 							builder.append("\n")
 						}
 						resultSet.close()
-						if (!hasData) return DiscordUtil.reply(event, String.format("Failed to get ticket for round %s", roundId))
+						if (!hasData) return DiscordUtil.reply(
+							event,
+							String.format("Failed to get ticket for round %s", roundId)
+						)
 						builder.append("```")
 						return DiscordUtil.reply(event, builder.toString())
 					}
@@ -100,7 +103,8 @@ class TicketCommand(
 		val ticketId = args[3]
 		try {
 			database.byondDbConnection.use { connection ->
-				connection.prepareStatement("""
+				connection.prepareStatement(
+					"""
 				SELECT `interactions`.`when`, `interactions`.`user`, `interactions`.`text`
 				FROM ${database.prefix("admin_tickets")} as tickets
 				JOIN ${database.prefix("admin_ticket_interactions")} interactions on tickets.id = interactions.ticket_id

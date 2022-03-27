@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-class StatusPayload(
+class StatusDTO(
 	@JsonProperty("key") val key: String,
 	@JsonProperty("status") val status: String,
 	@JsonProperty("map_name") val map_name: String?,

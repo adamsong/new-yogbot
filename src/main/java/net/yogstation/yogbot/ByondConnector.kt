@@ -5,10 +5,10 @@ import net.yogstation.yogbot.util.YogResult
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
-import java.nio.ByteOrder
 import java.io.IOException
 import java.net.Socket
 import java.nio.ByteBuffer
+import java.nio.ByteOrder
 import java.nio.charset.StandardCharsets
 
 @Component

@@ -1,7 +1,6 @@
 package net.yogstation.yogbot.listeners.commands
 
 import net.yogstation.yogbot.config.DiscordConfig
-import net.yogstation.yogbot.listeners.commands.ImageCommand
 import org.springframework.stereotype.Component
 import java.util.*
 

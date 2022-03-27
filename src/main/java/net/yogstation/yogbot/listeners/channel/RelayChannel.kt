@@ -1,20 +1,20 @@
 package net.yogstation.yogbot.listeners.channel
 
-import net.yogstation.yogbot.config.DiscordChannelsConfig
-import net.yogstation.yogbot.ByondConnector
 import discord4j.core.event.domain.message.MessageCreateEvent
-import reactor.core.publisher.Mono
-import java.lang.StringBuilder
+import net.yogstation.yogbot.ByondConnector
+import net.yogstation.yogbot.config.DiscordChannelsConfig
 import org.apache.commons.text.StringEscapeUtils
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
+import reactor.core.publisher.Mono
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
 @Component
-abstract class RelayChannel(channelsConfig: DiscordChannelsConfig, private val byondConnector: ByondConnector) : AbstractChannel(
-	channelsConfig
-) {
+abstract class RelayChannel(channelsConfig: DiscordChannelsConfig, private val byondConnector: ByondConnector) :
+	AbstractChannel(
+		channelsConfig
+	) {
 	private val logger = LoggerFactory.getLogger(javaClass)
 	open val imagesAllowed = false
 	abstract val method: String
@@ -24,7 +24,7 @@ abstract class RelayChannel(channelsConfig: DiscordChannelsConfig, private val b
 		val messageBuilder = StringBuilder(
 			StringEscapeUtils.escapeHtml4(event.message.content)
 		)
-		if(imagesAllowed) {
+		if (imagesAllowed) {
 			event.message.attachments.forEach { attachment ->
 				logger.info("Attachment {} found", attachment.filename)
 				if (attachment.filename.endsWith(".jpg") || attachment.filename.endsWith(".png")) {

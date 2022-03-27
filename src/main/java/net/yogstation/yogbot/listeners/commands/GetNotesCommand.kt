@@ -1,11 +1,9 @@
 package net.yogstation.yogbot.listeners.commands
 
+import net.yogstation.yogbot.DatabaseManager
 import net.yogstation.yogbot.config.DiscordConfig
 import net.yogstation.yogbot.permissions.PermissionsManager
-import net.yogstation.yogbot.DatabaseManager
-import java.lang.StringBuilder
 import java.sql.SQLException
-import java.util.ArrayList
 
 abstract class GetNotesCommand(
 	discordConfig: DiscordConfig,

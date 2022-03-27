@@ -2,10 +2,7 @@ package net.yogstation.yogbot.listeners.commands
 
 import discord4j.common.util.Snowflake
 import discord4j.core.`object`.entity.PartialMember
-import discord4j.core.`object`.entity.channel.MessageChannel
 import discord4j.core.event.domain.message.MessageCreateEvent
-import discord4j.core.spec.EmbedCreateSpec
-import discord4j.core.spec.MessageCreateSpec
 import net.yogstation.yogbot.DatabaseManager
 import net.yogstation.yogbot.config.DiscordConfig
 import net.yogstation.yogbot.listeners.IEventHandler
@@ -63,7 +60,7 @@ abstract class TextCommand(protected val discordConfig: DiscordConfig) : IEventH
 			val tmpSnowflake = snowflake
 			val tmpCkey = ckey
 			if (tmpSnowflake == null) {
-				if(tmpCkey == null) return "Snowflake and Ckey are both null in CommandTarget::populate"
+				if (tmpCkey == null) return "Snowflake and Ckey are both null in CommandTarget::populate"
 				val snowflakeResult = ByondLinkUtil.getMemberID(tmpCkey, database)
 				if (snowflakeResult.hasError()) return snowflakeResult.error
 				snowflake = snowflakeResult.value

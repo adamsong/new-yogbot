@@ -14,7 +14,7 @@ class ChannelListener(private val channelMessageHandlers: List<AbstractChannel>,
 	}
 
 	fun handle(event: MessageCreateEvent): Mono<*> {
-		if(event.message.author.isEmpty || event.message.author.get().isBot) return Mono.empty<Any>()
+		if (event.message.author.isEmpty || event.message.author.get().isBot) return Mono.empty<Any>()
 		return Flux.fromIterable(channelMessageHandlers)
 			.filter { channelMessageHandler: AbstractChannel -> event.message.channelId == channelMessageHandler.channel }
 			.next()

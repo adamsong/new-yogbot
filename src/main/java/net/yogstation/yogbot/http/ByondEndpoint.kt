@@ -12,7 +12,9 @@ import reactor.core.publisher.Mono
 abstract class ByondEndpoint(protected val byondConfig: ByondConfig) {
 
 	fun validateKey(key: String): Mono<HttpEntity<String>>? {
-		if (key != byondConfig.serverWebhookKey) return Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid key"))
+		if (key != byondConfig.serverWebhookKey) return Mono.just(
+			ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid key")
+		)
 		return null
 	}
 

@@ -69,7 +69,7 @@ class GithubController(
 			if (action != "opened" && action != "reopened" && action != "closed") {
 				return HttpUtil.ok("Action not supported");
 			}
-			if(jsonData.get("pull_request").get("merged") != null) action = "merged"
+			if (jsonData.get("pull_request").get("merged") != null) action = "merged"
 			val title = jsonData.get("pull_request").get("title").asText()
 			val securityPr = title.lowercase().contains("[s]")
 
@@ -77,10 +77,11 @@ class GithubController(
 				resultPublishers = resultPublishers.and(sendEmbedTo(channelsConfig.channelImportantAdmin, embed))
 			}
 
-			if(!securityPr){
+			if (!securityPr) {
 				if (action == "opened") {
 					byondConnector.request(
-						"?announce=$title&author=${jsonData.get("sender").get("login")
+						"?announce=$title&author=${
+							jsonData.get("sender").get("login")
 						}&id=${jsonData.get("pull_request").get("number")}"
 					)
 				}
@@ -92,7 +93,11 @@ class GithubController(
 				resultPublishers = resultPublishers.and(sendEmbedTo(channelsConfig.channelMaintainerChat, embed))
 			}
 
-			resultPublishers = resultPublishers.and(makeRequest("${jsonData.get("pull_request").get("_links").get("self").get("href").asText()}/files")
+			resultPublishers = resultPublishers.and(makeRequest(
+				"${
+					jsonData.get("pull_request").get("_links").get("self").get("href").asText()
+				}/files"
+			)
 				.bodyToMono(String::class.java)
 				.flatMap { responseString ->
 					var extensionsReturn: Mono<*> = Mono.empty<Any>()
@@ -101,57 +106,68 @@ class GithubController(
 					val extensionPattern: Pattern = Pattern.compile(".*\\.(\\w+)")
 					filesJson.elements().forEach {
 						val matcher = extensionPattern.matcher(it.get("filename").asText())
-						if(matcher.matches())
+						if (matcher.matches())
 							extensions.add(matcher.group(1))
 					}
-					if(!securityPr) {
-						if(extensions.contains("dmm")) {
+					if (!securityPr) {
+						if (extensions.contains("dmm")) {
 							extensionsReturn = extensionsReturn.and(sendEmbedTo(channelsConfig.channelMapping, embed))
 						}
-						if(extensions.contains("dmi") || extensions.contains("ogg")) {
+						if (extensions.contains("dmi") || extensions.contains("ogg")) {
 							extensionsReturn = extensionsReturn.and(sendEmbedTo(channelsConfig.channelSpriter, embed))
 						}
 					}
 
-					val labels: List<String> = githubLabels.filter{ it.isMatch(jsonData, changelogResult.value, extensions) }.map(GithubLabel::label)
+					val labels: List<String> =
+						githubLabels.filter { it.isMatch(jsonData, changelogResult.value, extensions) }
+							.map(GithubLabel::label)
 
-					extensionsReturn.and(webClient.post()
-						.uri(URI.create("${jsonData.get("pull_request").get("issue_url").asText()}/labels"))
-						.header("Authorization", "token ${githubConfig.token}")
-						.header("User-Agent", "Yogbot13")
-						.contentType(MediaType.APPLICATION_JSON)
-						.bodyValue(labels)
-						.retrieve()
-						.bodyToMono<Void>())
+					extensionsReturn.and(
+						webClient.post()
+							.uri(URI.create("${jsonData.get("pull_request").get("issue_url").asText()}/labels"))
+							.header("Authorization", "token ${githubConfig.token}")
+							.header("User-Agent", "Yogbot13")
+							.contentType(MediaType.APPLICATION_JSON)
+							.bodyValue(labels)
+							.retrieve()
+							.bodyToMono<Void>()
+					)
 				})
 
-			if(action == "merged" && changelogResult.value != null) {
+			if (action == "merged" && changelogResult.value != null) {
 				val changelogFile: StringBuilder = StringBuilder("author: \"")
-				val author = changelogResult.value.author ?: jsonData.get("pull_request").get("user").get("login").asText()
+				val author =
+					changelogResult.value.author ?: jsonData.get("pull_request").get("user").get("login").asText()
 				changelogFile.append(author)
 				changelogFile.append("\"\ndelete-after: true \nchanges: \n")
 
-				for(change in changelogResult.value.entries) {
+				for (change in changelogResult.value.entries) {
 					val body = change.body.replace("\"", "\\\\\"").replace("<", "")
 					changelogFile.append("  - ${change.type}: \"$body\"\n")
 				}
 				val branch = jsonData.get("pull_request").get("base").get("ref").asText()
 				val repo = jsonData.get("pull_request").get("base").get("repo").get("url").asText()
-				val filename = "html/changelogs/AutoChangelog-pr-${jsonData.get("pull_request").get("number").asText()}.yml"
-				val commit = "Automatic changelog generation #${jsonData.get("pull_request").get("number").asText()} [ci skip]"
+				val filename =
+					"html/changelogs/AutoChangelog-pr-${jsonData.get("pull_request").get("number").asText()}.yml"
+				val commit =
+					"Automatic changelog generation #${jsonData.get("pull_request").get("number").asText()} [ci skip]"
 
-				resultPublishers = resultPublishers.and(webClient.put()
-					.uri(URI.create("$repo/contents/$filename"))
-					.header("Authorization", "token ${githubConfig.token}")
-					.header("User-Agent", "Yogbot13")
-					.contentType(MediaType.APPLICATION_JSON)
-					.bodyValue(IssueSubmitDTO(
-						branch,
-						commit,
-						Base64.getEncoder().encodeToString(changelogFile.toString().encodeToByteArray())
-					))
-					.retrieve()
-					.bodyToMono<Void>())
+				resultPublishers = resultPublishers.and(
+					webClient.put()
+						.uri(URI.create("$repo/contents/$filename"))
+						.header("Authorization", "token ${githubConfig.token}")
+						.header("User-Agent", "Yogbot13")
+						.contentType(MediaType.APPLICATION_JSON)
+						.bodyValue(
+							IssueSubmitDTO(
+								branch,
+								commit,
+								Base64.getEncoder().encodeToString(changelogFile.toString().encodeToByteArray())
+							)
+						)
+						.retrieve()
+						.bodyToMono<Void>()
+				)
 			}
 		}
 		return resultPublishers.then(HttpUtil.ok("Request processed"))

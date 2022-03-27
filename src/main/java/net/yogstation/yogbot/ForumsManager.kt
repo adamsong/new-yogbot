@@ -75,9 +75,9 @@ class ForumsManager(
 		if (pingType == PingType.AUTODETECT && guild != null) {
 			val ckey = StringUtils.ckeyIze(mention)
 			val response = ByondLinkUtil.getMemberID(ckey, databaseManager)
-			if(response.value != null) {
+			if (response.value != null) {
 				return guild.getMemberById(response.value).map {
-					if(it.roleIds.contains(Snowflake.of(discordConfig.staffRole))) {
+					if (it.roleIds.contains(Snowflake.of(discordConfig.staffRole))) {
 						it.mention
 					} else getDefaultPing(pingType)
 				}
@@ -87,7 +87,7 @@ class ForumsManager(
 	}
 
 	private fun getDefaultPing(pingType: PingType): String {
-		return when(pingType) {
+		return when (pingType) {
 			PingType.AUTODETECT, PingType.STAFF_ONLY -> "<@&${discordConfig.staffRole}>"
 			PingType.MENTOR_STAFF -> "<@&${discordConfig.mentorRole}> <@&${discordConfig.staffRole}>"
 		}
@@ -101,18 +101,22 @@ class ForumsManager(
 				channel.restChannel.getMessagesAfter(Snowflake.of(0)).collectList().flatMap { unprocessedMessages ->
 					var publishResult: Mono<*> = Mono.empty<Any>()
 					while (matcher.find()) {
-						publishResult = publishResult.and(processPost(
-							pingType,
-							unprocessedMessages,
-							channel,
-							matcher.group("link"),
-							matcher.group("title"),
-							if (pingType == PingType.AUTODETECT) matcher.group("ping") else ""
-						))
+						publishResult = publishResult.and(
+							processPost(
+								pingType,
+								unprocessedMessages,
+								channel,
+								matcher.group("link"),
+								matcher.group("title"),
+								if (pingType == PingType.AUTODETECT) matcher.group("ping") else ""
+							)
+						)
 					}
 
-					for(toDelete in unprocessedMessages) {
-						publishResult = publishResult.and(channel.restChannel.getRestMessage(Snowflake.of(toDelete.id())).delete("Post Removed"))
+					for (toDelete in unprocessedMessages) {
+						publishResult = publishResult.and(
+							channel.restChannel.getRestMessage(Snowflake.of(toDelete.id())).delete("Post Removed")
+						)
 					}
 
 					publishResult

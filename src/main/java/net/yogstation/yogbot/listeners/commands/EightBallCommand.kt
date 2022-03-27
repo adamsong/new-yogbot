@@ -1,7 +1,7 @@
 package net.yogstation.yogbot.listeners.commands
 
-import net.yogstation.yogbot.config.DiscordConfig
 import discord4j.core.event.domain.message.MessageCreateEvent
+import net.yogstation.yogbot.config.DiscordConfig
 import net.yogstation.yogbot.util.DiscordUtil
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono

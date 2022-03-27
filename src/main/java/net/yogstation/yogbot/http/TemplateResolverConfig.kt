@@ -5,7 +5,9 @@ import org.thymeleaf.TemplateEngine
 import org.thymeleaf.templatemode.TemplateMode
 import org.thymeleaf.templateresolver.UrlTemplateResolver
 
-
+/**
+ * Settings for resolving the HTML templates
+ */
 @Configuration
 open class TemplateResolverConfig() {
 	private val templateResolver = UrlTemplateResolver()

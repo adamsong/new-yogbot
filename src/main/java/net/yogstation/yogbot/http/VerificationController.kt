@@ -29,6 +29,9 @@ import java.net.URI
 import java.security.SecureRandom
 import java.sql.SQLException
 
+/**
+ * Controls all endpoints related to the verification system
+ */
 @Controller
 class VerificationController(
 	private val webClient: WebClient,
@@ -41,6 +44,9 @@ class VerificationController(
 	val oauthState: MutableMap<String, AuthIdentity> = HashMap()
 	private val random = SecureRandom()
 
+	/**
+	 * Redirects to the configured authentication endpoint, adding some necessary data
+	 */
 	@ResponseBody
 	@GetMapping("/api/verify")
 	fun doRedirect(@RequestParam(value = "state") state: String): ResponseEntity<*> {
@@ -54,6 +60,10 @@ class VerificationController(
 		return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(urlBuilder.toString())).build<Void>()
 	}
 
+	/**
+	 * This is the final step in the process of verification, indicating the user has clicked the confirm button
+	 * The actual linking of the accounts goes here
+	 */
 	@PostMapping(value = ["/api/callback"], consumes = [MediaType.APPLICATION_FORM_URLENCODED_VALUE])
 	fun callbackPost(data: CallbackData, model: Model): String {
 		val state = data.state
@@ -63,7 +73,7 @@ class VerificationController(
 			return "verification/error"
 		}
 		val authIdentity: AuthIdentity? = oauthState[state]
-		if (authIdentity == null ){
+		if (authIdentity == null) {
 			model.addAttribute("error", "State %state is unkown")
 			return "verification/error"
 		}
@@ -91,7 +101,10 @@ class VerificationController(
 						queryStmt.setString(1, authIdentity.ckey)
 						val queryResults = queryStmt.executeQuery()
 						if (!queryResults.next()) {
-							model.addAttribute("error", "New account detected, please login on the server at least once to proceed")
+							model.addAttribute(
+								"error",
+								"New account detected, please login on the server at least once to proceed"
+							)
 							return "verification/error"
 						}
 						queryResults.close()
@@ -116,6 +129,10 @@ class VerificationController(
 		}
 	}
 
+	/**
+	 * The user is redirected here after they log in to the authentication endpoint
+	 * This contacts the auth server directly, confirms the login, then asks the user to confirm the link
+	 */
 	@GetMapping("/api/callback")
 	fun getCallback(
 		@RequestParam(value = "error", required = false) error: String?,
@@ -124,7 +141,7 @@ class VerificationController(
 		@RequestParam(value = "code", required = false) code: String?,
 		model: Model
 	): Mono<String> {
-		if(discordConfig.oauthClientId == "") {
+		if (discordConfig.oauthClientId == "") {
 			model.addAttribute("error", "Verification is not implemented")
 			return Mono.just("verification/error")
 		}
@@ -157,6 +174,7 @@ class VerificationController(
 		bodyValues.add("code", code)
 		bodyValues.add("redirect_uri", "${httpConfig.publicPath}api/callback")
 
+		// Send a post request to the api endpoint asking for the auth token
 		return webClient.post()
 			.uri(URI.create(discordConfig.oauthTokenUrl))
 			.headers { headers -> headers.setBasicAuth(discordConfig.oauthClientId, discordConfig.oauthClientSecret) }
@@ -167,6 +185,7 @@ class VerificationController(
 			.flatMap { token: String -> useToken(token, identity, state, model) }
 	}
 
+	// Separate function for readability, continued from above
 	private fun useToken(
 		token: String,
 		identity: AuthIdentity,
@@ -178,9 +197,11 @@ class VerificationController(
 			val errorNode = root["error"]
 			if (errorNode != null) {
 				val errorDescriptionNode = root["error_description"]
-				model.addAttribute("error", "Upstream error when fetching access to token ${
-					errorDescriptionNode?.asText() ?: errorNode.asText()	
-				}")
+				model.addAttribute(
+					"error", "Upstream error when fetching access to token ${
+						errorDescriptionNode?.asText() ?: errorNode.asText()
+					}"
+				)
 				return Mono.just("verification/error")
 			}
 			root["access_token"].asText()
@@ -190,12 +211,14 @@ class VerificationController(
 			return Mono.just("verification/error")
 		}
 
+		// Send another web request to get the user's information
 		return webClient.get()
 			.uri(URI.create(discordConfig.oauthUserInfoUrl))
 			.headers { headers -> headers.setBearerAuth(accessToken) }
 			.retrieve()
 			.toEntity(String::class.java)
 			.flatMap { ckeyResponseEntity: ResponseEntity<String?> ->
+				// Process the response, then display the confirmation page
 				val ckey: String = try {
 					StringUtils.ckeyIze(mapper.readTree(ckeyResponseEntity.body)["ckey"].asText())
 				} catch (e: JsonProcessingException) {
@@ -204,7 +227,10 @@ class VerificationController(
 					return@flatMap Mono.just("verification/error")
 				}
 				if (ckey != identity.ckey) {
-					model.addAttribute("error","Ckey does not match, you attempted to login using $ckey while the linking process was initialized with ${identity.ckey}")
+					model.addAttribute(
+						"error",
+						"Ckey does not match, you attempted to login using $ckey while the linking process was initialized with ${identity.ckey}"
+					)
 					return@flatMap Mono.just("verification/error")
 				}
 				val bytes = ByteArray(32)

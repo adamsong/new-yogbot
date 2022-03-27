@@ -26,7 +26,10 @@ class MHelpCommand(
 
 	override fun doCommand(event: MessageCreateEvent): Mono<*> {
 		val matcher = argsPattern.matcher(event.message.content)
-		if (!matcher.matches()) return DiscordUtil.reply(event, "Usage is `${discordConfig.commandPrefix}mhelp <ckey> <message>")
+		if (!matcher.matches()) return DiscordUtil.reply(
+			event,
+			"Usage is `${discordConfig.commandPrefix}mhelp <ckey> <message>"
+		)
 		val builder = StringBuilder("?mhelp=1")
 		builder.append("&msg=").append(URLEncoder.encode(matcher.group(2), StandardCharsets.UTF_8))
 		builder.append("&admin=")

@@ -2,19 +2,14 @@ package net.yogstation.yogbot.listeners.channel
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.ObjectMapper
 import discord4j.common.util.Snowflake
 import discord4j.core.event.domain.message.MessageCreateEvent
 import net.yogstation.yogbot.config.DiscordChannelsConfig
 import net.yogstation.yogbot.config.GithubConfig
 import net.yogstation.yogbot.util.DiscordUtil
-import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Component
-import org.springframework.util.LinkedMultiValueMap
-import org.springframework.util.MultiValueMap
 import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.WebClientRequestException
 import reactor.core.publisher.Mono
 import java.net.URI
 
@@ -97,13 +92,14 @@ class BugReportChannel(
 
 
 	}
-	class IssueSubmitDTO (
+
+	class IssueSubmitDTO(
 		val title: String,
 		val body: String
 	)
 
 	@JsonIgnoreProperties(ignoreUnknown = true)
-	class IssueResponseDTO (
+	class IssueResponseDTO(
 		@JsonProperty("html_url") val html_url: String
-		)
+	)
 }

@@ -1,9 +1,9 @@
 package net.yogstation.yogbot.listeners.commands
 
 import discord4j.core.`object`.entity.Member
+import discord4j.core.event.domain.message.MessageCreateEvent
 import net.yogstation.yogbot.config.DiscordConfig
 import net.yogstation.yogbot.permissions.PermissionsManager
-import discord4j.core.event.domain.message.MessageCreateEvent
 import net.yogstation.yogbot.util.DiscordUtil
 import reactor.core.publisher.Mono
 

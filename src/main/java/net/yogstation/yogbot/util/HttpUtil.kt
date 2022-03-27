@@ -1,9 +1,9 @@
 package net.yogstation.yogbot.util
 
-import reactor.core.publisher.Mono
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import reactor.core.publisher.Mono
 
 object HttpUtil {
 	fun <T> badRequest(body: T): Mono<HttpEntity<T>> {

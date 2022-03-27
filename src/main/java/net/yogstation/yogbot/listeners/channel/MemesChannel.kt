@@ -13,8 +13,12 @@ class MemesChannel(channelsConfig: DiscordChannelsConfig) : AbstractChannel(chan
 
 	override fun handle(event: MessageCreateEvent): Mono<*> {
 		val message = event.message
-		if(message.attachments.size > 0 || message.embeds.size > 0 || message.content.contains(".mp4") || message.content.contains(".gif")) {
-			return message.addReaction(ReactionEmoji.unicode("\uD83D\uDC4D")).and(message.addReaction(ReactionEmoji.unicode("\uD83D\uDC4E")))
+		if (message.attachments.size > 0 || message.embeds.size > 0 || message.content.contains(".mp4") || message.content.contains(
+				".gif"
+			)
+		) {
+			return message.addReaction(ReactionEmoji.unicode("\uD83D\uDC4D"))
+				.and(message.addReaction(ReactionEmoji.unicode("\uD83D\uDC4E")))
 		}
 		return Mono.empty<Any>()
 	}

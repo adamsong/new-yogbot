@@ -10,7 +10,6 @@ import discord4j.core.event.domain.interaction.ModalSubmitInteractionEvent
 import discord4j.core.event.domain.interaction.UserInteractionEvent
 import net.yogstation.yogbot.bans.BanManager
 import net.yogstation.yogbot.permissions.PermissionsManager
-import net.yogstation.yogbot.util.YogResult
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 
@@ -45,7 +44,8 @@ class SoftbanCommand(private val permissions: PermissionsManager, private val ba
 				for (data in component.data.components().get()) {
 					if (data.customId().isAbsent) continue
 					when (data.customId().get()) {
-						"duration" -> duration = if (data.value().isAbsent || data.value().get() == "") -1 else data.value().get().toInt()
+						"duration" -> duration =
+							if (data.value().isAbsent || data.value().get() == "") -1 else data.value().get().toInt()
 						"reason" -> {
 							if (data.value().isAbsent) return event.reply().withContent("Please specify a ban reason")
 							reason = data.value().get()
@@ -60,7 +60,7 @@ class SoftbanCommand(private val permissions: PermissionsManager, private val ba
 			.guild
 			.flatMap { guild: Guild -> guild.getMemberById(toBan) }
 			.flatMap { member: Member? ->
-				if(member == null) event.reply().withEphemeral(true).withContent("Cannot find member")
+				if (member == null) event.reply().withEphemeral(true).withContent("Cannot find member")
 				else {
 					val result = banManager.ban(
 						member, finalReason, finalDuration,

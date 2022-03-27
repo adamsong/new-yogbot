@@ -2,7 +2,6 @@ package net.yogstation.yogbot.config
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.ConstructorBinding
-import org.springframework.stereotype.Component
 
 @ConstructorBinding
 @ConfigurationProperties(prefix = "yogbot.channels")
@@ -42,6 +41,10 @@ class DiscordChannelsConfig {
 		)
 	}
 
+	/**
+	 * Returns if the given long points to an admin channel
+	 * @param channelID The value to check
+	 */
 	fun isAdminChannel(channelID: Long): Boolean {
 		return adminChannels.contains(channelID)
 	}

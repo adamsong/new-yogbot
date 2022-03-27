@@ -1,6 +1,6 @@
 package net.yogstation.yogbot.permissions
 
-class PermissionsNode (
+class PermissionsNode(
 	val role: String
 ) {
 	private val permissions: MutableSet<String> = HashSet()
@@ -52,7 +52,8 @@ class PermissionsNode (
 			val node = PermissionsNode(name)
 			node.permissions.addAll(perms)
 			for (parentName in parents) {
-				val parentNode = manager.getNodeFor(parentName) ?: throw java.lang.IllegalStateException("Cannot initialize a permissions node before its parents")
+				val parentNode = manager.getNodeFor(parentName)
+					?: throw java.lang.IllegalStateException("Cannot initialize a permissions node before its parents")
 				node.parents.add(parentNode)
 			}
 			return node

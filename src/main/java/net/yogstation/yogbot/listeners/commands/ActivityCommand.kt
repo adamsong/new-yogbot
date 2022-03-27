@@ -1,17 +1,14 @@
 package net.yogstation.yogbot.listeners.commands
 
+import discord4j.core.event.domain.message.MessageCreateEvent
+import net.yogstation.yogbot.DatabaseManager
 import net.yogstation.yogbot.config.DiscordConfig
 import net.yogstation.yogbot.permissions.PermissionsManager
-import net.yogstation.yogbot.DatabaseManager
-import discord4j.core.event.domain.message.MessageCreateEvent
 import net.yogstation.yogbot.util.DiscordUtil
-import reactor.core.publisher.Mono
 import net.yogstation.yogbot.util.StringUtils
 import org.springframework.stereotype.Component
-import java.util.HashSet
-import java.lang.StringBuilder
+import reactor.core.publisher.Mono
 import java.sql.SQLException
-import java.util.ArrayList
 
 @Component
 class ActivityCommand(
@@ -20,7 +17,7 @@ class ActivityCommand(
 	private val database: DatabaseManager,
 ) : PermissionsCommand(discordConfig, permissions) {
 
-	private val activityQueryFormat: String ="""
+	private val activityQueryFormat: String = """
 			/*
 MIT License
 Copyright (c) 2021 alexkar598

@@ -16,7 +16,10 @@ class RemoveAOCommand(discordConfig: DiscordConfig, permissions: PermissionsMana
 	) {
 	override fun doCommand(event: MessageCreateEvent): Mono<*> {
 		val target = getTarget(event)
-			?: return DiscordUtil.reply(event, "Correct usage: `${discordConfig.commandPrefix}removeao <ckey or @Username>`")
+			?: return DiscordUtil.reply(
+				event,
+				"Correct usage: `${discordConfig.commandPrefix}removeao <ckey or @Username>`"
+			)
 		try {
 			database.byondDbConnection.use { connection ->
 				connection.prepareStatement(
