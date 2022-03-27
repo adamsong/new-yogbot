@@ -7,8 +7,13 @@ CREATE TABLE IF NOT EXISTS bans (
     reason VARCHAR(2048)
 );
 
+CREATE INDEX idx_ban_get ON bans (discord_id, revoked_at, expires_at);
+CREATE INDEX idx_ban_gets ON bans (revoked_at, expires_at);
+
 CREATE TABLE IF NOT EXISTS user_sticky_roles (
     discord_id BIGINT(20) NOT NULL,
     role_id BIGINT(20) NOT NULL,
     PRIMARY KEY (discord_id, role_id)
-)
+);
+
+CREATE INDEX idx_roles_get ON user_sticky_roles (discord_id)
