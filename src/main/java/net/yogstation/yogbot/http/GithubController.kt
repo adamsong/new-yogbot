@@ -115,11 +115,12 @@ class GithubController(
 
 			if(jsonData.get("action").asText() == "merged" && changelogResult.value != null) {
 				val changelogFile: StringBuilder = StringBuilder("author: \"")
-				changelogFile.append(changelogResult.value.author ?: jsonData.get("pull_request").get("user").get("login").asText())
+				val author = changelogResult.value.author ?: jsonData.get("pull_request").get("user").get("login").asText()
+				changelogFile.append(author)
 				changelogFile.append("\"\ndelete-after: true \nchanges: \n")
 
 				for(change in changelogResult.value.entries) {
-					val body = change.body
+					val body = change.body.replace("\"", "\\\\\"").replace("<", "")
 					changelogFile.append("  - ${change.type}: \"$body\"\n")
 				}
 				val branch = jsonData.get("pull_request").get("base").get("ref").asText()
