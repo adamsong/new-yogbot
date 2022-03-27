@@ -9,6 +9,9 @@ import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 import java.sql.SQLException
 
+/**
+ * Adds an AO based on discord tag or ckey
+ */
 @Component
 class AddAOCommand(discordConfig: DiscordConfig, permissions: PermissionsManager, database: DatabaseManager) :
 	EditRankCommand(

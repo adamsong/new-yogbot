@@ -57,6 +57,7 @@ abstract class TextCommand(protected val discordConfig: DiscordConfig) : IEventH
 		}
 
 		fun populate(database: DatabaseManager): String? {
+			if(snowflake != null && ckey != null) return null
 			val tmpSnowflake = snowflake
 			val tmpCkey = ckey
 			if (tmpSnowflake == null) {

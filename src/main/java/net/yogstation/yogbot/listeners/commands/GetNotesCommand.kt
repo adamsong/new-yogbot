@@ -5,6 +5,9 @@ import net.yogstation.yogbot.config.DiscordConfig
 import net.yogstation.yogbot.permissions.PermissionsManager
 import java.sql.SQLException
 
+/**
+ * Gets the notes of a player, to be used either for a player getting their own notes, or an admin getting someone else's
+ */
 abstract class GetNotesCommand(
 	discordConfig: DiscordConfig,
 	permissions: PermissionsManager,
@@ -12,6 +15,11 @@ abstract class GetNotesCommand(
 ) : PermissionsCommand(
 	discordConfig, permissions
 ) {
+	/**
+	 * Gets the notes as a list
+	 * @param ckey The ckey to get notes for
+	 * @param showAdmin Should the admin's name be included
+	 */
 	protected fun getNotes(ckey: String, showAdmin: Boolean): List<String> {
 		try {
 			database.byondDbConnection.use { connection ->

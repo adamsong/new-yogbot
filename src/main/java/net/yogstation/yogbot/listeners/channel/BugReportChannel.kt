@@ -13,6 +13,10 @@ import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
 import java.net.URI
 
+/**
+ * Grabs messages from the bug reports channel, attempts to format them as a bug report, then uploads the new bug
+ * report to github
+ */
 @Component
 class BugReportChannel(
 	channelsConfig: DiscordChannelsConfig,
@@ -22,6 +26,7 @@ class BugReportChannel(
 	override val channel: Snowflake = Snowflake.of(channelsConfig.channelBugReports)
 
 	override fun handle(event: MessageCreateEvent): Mono<*> {
+		// Ignore
 		if (event.message.content.startsWith("-")) return Mono.empty<Any>()
 		val lines = event.message.content.split("\n")
 

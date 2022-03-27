@@ -10,6 +10,9 @@ import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 import java.sql.SQLException
 
+/**
+ * Gets the activity of all the admins
+ */
 @Component
 class ActivityCommand(
 	discordConfig: DiscordConfig,
@@ -17,6 +20,7 @@ class ActivityCommand(
 	private val database: DatabaseManager,
 ) : PermissionsCommand(discordConfig, permissions) {
 
+	// Chonky command, grabs the needed data
 	private val activityQueryFormat: String = """
 			/*
 MIT License
@@ -48,12 +52,15 @@ FROM %s as adminlist
 JOIN %s as ranklist ON adminlist.rank = ranklist.`rank`;
 			"""
 
+	// The ranks to be listed as excempt
 	private val exemptRanks = listOf(
 		"Host", "Council Member", "RetCoder", "Tribunal",
 		"Retired Admin", "Senior Coder", "Head Developer",
 		"Maintainer", "Admin Observer", "#Forum Mod", "Bot",
 		"Community Manager"
 	)
+
+	// These ranks do not show up as all
 	private val ignoreRanks = listOf("Maintainer", "Bot")
 
 	override val description = "Activity fun."
@@ -71,6 +78,9 @@ JOIN %s as ranklist ON adminlist.rank = ranklist.`rank`;
 					database.prefix("admin_ranks")
 				)
 			)
+
+			// Iterates through the result of the query, saving ckey rank and activity, as well as the longest length
+			// for name and rank, for formatting later
 			val activityData: MutableList<Activity> = ArrayList()
 			var adminLen = 8
 			var rankLen = 4
@@ -88,6 +98,8 @@ JOIN %s as ranklist ON adminlist.rank = ranklist.`rank`;
 			activityResults.close()
 			activityStatement.close()
 			activityData.sort()
+
+			// Generate a set of all ckeys on LOA
 			val loaAdmins: MutableSet<String> = HashSet()
 			val loaStatement = conn.createStatement()
 			val loaResults = loaStatement.executeQuery(
@@ -97,6 +109,8 @@ JOIN %s as ranklist ON adminlist.rank = ranklist.`rank`;
 			loaResults.close()
 			loaStatement.close()
 			conn.close()
+
+			// Print out the activity table
 			val output = StringBuilder("```diff\n")
 			val title = StringBuilder("  ")
 			title.append(StringUtils.center("Username", adminLen))
@@ -123,6 +137,7 @@ JOIN %s as ranklist ON adminlist.rank = ranklist.`rank`;
 				line.append(' ')
 				if (loa) line.append("(LOA)") else if (exempt) line.append("(Exempt)")
 				line.append('\n')
+				// If this line would make the message too big, send what we have and start a new one
 				if (output.length + line.length > 1990) {
 					output.append("```")
 					action = action.and(DiscordUtil.send(event, output.toString()))

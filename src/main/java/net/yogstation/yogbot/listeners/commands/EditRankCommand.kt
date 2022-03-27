@@ -12,6 +12,9 @@ import reactor.core.publisher.Mono
 import java.sql.PreparedStatement
 import java.sql.SQLException
 
+/**
+ * Command for editing the in game rank of someone, such as add/remove ao
+ */
 abstract class EditRankCommand(
 	discordConfig: DiscordConfig,
 	permissions: PermissionsManager,
@@ -19,6 +22,14 @@ abstract class EditRankCommand(
 ) : PermissionsCommand(
 	discordConfig, permissions
 ) {
+	/**
+	 * Gives the provided role to the target, checking to see if they already have an in game rank.
+	 * @param event The message create event, used for replies
+	 * @param target The target of the command, will be populated
+	 * @param rankCheckStmt The prepared statement, that should return no rows if parameter 1 should be given the rank
+	 * @param rankSetStmt Gives rank to parameter 1
+	 * @param role The role to give
+	 */
 	@Throws(SQLException::class)
 	protected fun giveRank(
 		event: MessageCreateEvent, target: CommandTarget, rankCheckStmt: PreparedStatement,
@@ -54,6 +65,13 @@ abstract class EditRankCommand(
 			})
 	}
 
+	/**
+	 * Removes role and rank from target
+	 * @param event The message create event, used for replies
+	 * @param target The target of the command, will be populated
+	 * @param rankSetStmt Removes all rank from parameter 1
+	 * @param role The role to give
+	 */
 	@Throws(SQLException::class)
 	protected fun removeRank(
 		event: MessageCreateEvent, target: CommandTarget, rankSetStmt: PreparedStatement,

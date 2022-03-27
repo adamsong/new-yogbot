@@ -8,6 +8,9 @@ import net.yogstation.yogbot.config.DiscordConfig
 import net.yogstation.yogbot.util.DiscordUtil
 import reactor.core.publisher.Mono
 
+/**
+ * Pulls a list of currently online admins
+ */
 class AdminWhoCommand(
 	discordConfig: DiscordConfig, private val byondConnector: ByondConnector,
 	private val channelsConfig: DiscordChannelsConfig

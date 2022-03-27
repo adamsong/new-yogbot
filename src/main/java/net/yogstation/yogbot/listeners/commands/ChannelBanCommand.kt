@@ -8,9 +8,16 @@ import net.yogstation.yogbot.permissions.PermissionsManager
 import net.yogstation.yogbot.util.DiscordUtil
 import reactor.core.publisher.Mono
 
+/**
+ * Base class for any command that gives and removes a channel ban such as !mentorban and !loreban
+ * Not used for !staffban because of the warning system
+ */
 abstract class ChannelBanCommand(discordConfig: DiscordConfig, permissions: PermissionsManager) : PermissionsCommand(
 	discordConfig, permissions
 ) {
+	/**
+	 * The role to give/remove
+	 */
 	protected abstract val banRole: Snowflake
 	override fun doCommand(event: MessageCreateEvent): Mono<*> {
 		if (event.message.memberMentions.size != 1) return DiscordUtil.reply(
@@ -18,6 +25,7 @@ abstract class ChannelBanCommand(discordConfig: DiscordConfig, permissions: Perm
 			"Usage is `${discordConfig.commandPrefix}$name [@UserName]`"
 		)
 		val partialMember: PartialMember = event.message.memberMentions[0]
+		// If they have the rule, remove it
 		return if (partialMember.roleIds.contains(banRole)) partialMember.removeRole(
 			banRole, String.format(
 				"Ban lifted by %s",
@@ -29,8 +37,9 @@ abstract class ChannelBanCommand(discordConfig: DiscordConfig, permissions: Perm
 					.get()
 					.username else "unknown"
 			)
-		)
-			.and(DiscordUtil.reply(event, "Ban lifted successfully")) else partialMember.addRole(
+		).and(DiscordUtil.reply(event, "Ban lifted successfully"))
+		// If they don't have the rule, give it
+		else partialMember.addRole(
 			banRole, String.format(
 				"Ban applied by %s",
 				if (event.message.author.isPresent) event.message.author.get().username else "unknown"

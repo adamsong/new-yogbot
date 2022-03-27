@@ -13,10 +13,12 @@ class MemesChannel(channelsConfig: DiscordChannelsConfig) : AbstractChannel(chan
 
 	override fun handle(event: MessageCreateEvent): Mono<*> {
 		val message = event.message
+		// If the message has an attachment, an embed, or a link to mp4/gif it must be a meme
 		if (message.attachments.size > 0 || message.embeds.size > 0 || message.content.contains(".mp4") || message.content.contains(
 				".gif"
 			)
 		) {
+			// Java is strange with unicode in strings, this is thumbs up and down emoji
 			return message.addReaction(ReactionEmoji.unicode("\uD83D\uDC4D"))
 				.and(message.addReaction(ReactionEmoji.unicode("\uD83D\uDC4E")))
 		}

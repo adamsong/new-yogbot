@@ -10,13 +10,26 @@ import reactor.core.publisher.Mono
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
+/**
+ * This is the parent type for all channels that simply take messages from discord and send them to byond
+ * such as asay, msay, and ooc. This class takes any message sent in the channel and forwards it to the specified
+ * byond endpoint, attaching images if set to do so
+ */
 @Component
 abstract class RelayChannel(channelsConfig: DiscordChannelsConfig, private val byondConnector: ByondConnector) :
 	AbstractChannel(
 		channelsConfig
 	) {
 	private val logger = LoggerFactory.getLogger(javaClass)
+
+	/**
+	 * Setting this to true will take attached images and include them in the message sent to byond
+	 */
 	open val imagesAllowed = false
+
+	/**
+	 * The method on the byond endpoint to process the messages
+	 */
 	abstract val method: String
 
 	override fun handle(event: MessageCreateEvent): Mono<*> {
@@ -24,6 +37,7 @@ abstract class RelayChannel(channelsConfig: DiscordChannelsConfig, private val b
 		val messageBuilder = StringBuilder(
 			StringEscapeUtils.escapeHtml4(event.message.content)
 		)
+		// If images are allowed (asay only, mentors can cope) link to them
 		if (imagesAllowed) {
 			event.message.attachments.forEach { attachment ->
 				logger.info("Attachment {} found", attachment.filename)
@@ -32,6 +46,7 @@ abstract class RelayChannel(channelsConfig: DiscordChannelsConfig, private val b
 				}
 			}
 		}
+
 		val user: String = if (event.member.isPresent) {
 			event.member.get().displayName
 		} else {

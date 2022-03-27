@@ -9,6 +9,9 @@ import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 import java.sql.SQLException
 
+/**
+ * Makes someone a mentor, specified by mention or ckey
+ */
 @Component
 class AddMentorCommand(discordConfig: DiscordConfig, permissions: PermissionsManager, database: DatabaseManager) :
 	EditRankCommand(
