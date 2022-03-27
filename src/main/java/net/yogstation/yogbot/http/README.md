@@ -9,7 +9,7 @@ data to be sent as JSON. At minimum all requests must have the webhook key.
 Basic endpoint that returns status code 200 if the server is probably functioning as intended, 
 and not 200 if this is not the case.
 
-## `POST /github`
+## `POST /api/github`
 Endpoint for listening to one or more GitHub webhooks. Ensure the webhook is provided with the key stored in the config, 
 as it is used to verify the source of the updates.
 

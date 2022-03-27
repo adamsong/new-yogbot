@@ -49,7 +49,7 @@ class GithubController(
 		mac.init(keySpec)
 	}
 
-	@PostMapping("/github")
+	@PostMapping("/api/github")
 	fun handleWebhook(
 		@RequestBody data: String,
 		@RequestHeader("X-Hub-Signature-256") hash: String,
