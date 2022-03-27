@@ -1,6 +1,7 @@
 package net.yogstation.yogbot
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.mysql.cj.jdbc.MysqlConnectionPoolDataSource
 import discord4j.core.DiscordClientBuilder
 import discord4j.core.GatewayDiscordClient
 import discord4j.core.`object`.entity.User
@@ -14,19 +15,15 @@ import org.reactivestreams.Publisher
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.builder.SpringApplicationBuilder
+import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 import org.springframework.context.annotation.Bean
 import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.web.client.RestTemplate
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
-import java.security.Provider
-import java.security.Security
 import java.util.*
 import java.util.function.Function
-import java.util.stream.Collectors
-
-
 
 
 @SpringBootApplication

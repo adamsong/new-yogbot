@@ -10,7 +10,7 @@ import java.sql.SQLException
 @Component
 class DatabaseManager(private val config: DatabaseConfig) {
 	private val byondDbDs: MysqlConnectionPoolDataSource = MysqlConnectionPoolDataSource()
-	private val yogbotDbDs: MysqlConnectionPoolDataSource = MysqlConnectionPoolDataSource()
+	val yogbotDbDs: MysqlConnectionPoolDataSource = MysqlConnectionPoolDataSource()
 
 	init {
 		byondDbDs.serverName = config.hostname
