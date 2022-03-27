@@ -20,7 +20,7 @@ import java.util.*
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
-@Component
+//@Component
 class ForumsManager(
 	private val channelsConfig: DiscordChannelsConfig,
 	client: GatewayDiscordClient,

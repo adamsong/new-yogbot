@@ -5,7 +5,7 @@ import net.yogstation.yogbot.ByondConnector
 import net.yogstation.yogbot.config.DiscordChannelsConfig
 import org.springframework.stereotype.Component
 
-@Component
+//@Component
 class MSayChannel(channelsConfig: DiscordChannelsConfig, byondConnector: ByondConnector) : RelayChannel(
 	channelsConfig, byondConnector
 ) {

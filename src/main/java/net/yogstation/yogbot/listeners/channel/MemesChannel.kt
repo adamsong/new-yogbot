@@ -7,7 +7,7 @@ import net.yogstation.yogbot.config.DiscordChannelsConfig
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 
-@Component
+//@Component
 class MemesChannel(channelsConfig: DiscordChannelsConfig) : AbstractChannel(channelsConfig) {
 	override val channel: Snowflake = Snowflake.of(channelsConfig.channelMemes)
 

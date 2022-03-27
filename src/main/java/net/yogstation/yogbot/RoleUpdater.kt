@@ -95,7 +95,7 @@ class RoleUpdater(
 					.and(logChannel.log("Softban automatically reapplied to ${it.username}"))
 			}) {
 				it.removeRole(softbanRole, "Ban expired").and(logChannel.log("Bans expired for ${it.username}"))
-			}.and(
+			}/*.and(
 				updateRole(donorSnowflakes, member, donorRole, {
 					it.addRole(donorRole, "Giving donor role")
 				}) {
@@ -107,11 +107,11 @@ class RoleUpdater(
 				}
 			).and(
 				updateRole(verifiedSnowflakes, member, verificationRole, {
-					it.addRole(verificationRole, "Reapplying donor role")
+					it.addRole(verificationRole, "Reapplying verification role")
 				}) {
 					it.removeRole(donorRole, "Unable to verify")
 				}
-			)
+			)*/
 		}.subscribe()
 	}
 

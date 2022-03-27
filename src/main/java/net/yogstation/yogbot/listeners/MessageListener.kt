@@ -11,11 +11,11 @@ import reactor.core.publisher.Mono
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
-@Component
+//@Component
 class MessageListener(
 	client: GatewayDiscordClient,
 	val discordConfig: DiscordConfig,
-	val githubController: GithubController
+	private val githubController: GithubController
 ) {
 	private val prPattern: Pattern = Pattern.compile("\\[#([0-9]+)]")
 
